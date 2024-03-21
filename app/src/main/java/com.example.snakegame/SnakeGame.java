@@ -26,6 +26,8 @@ class SnakeGame extends SurfaceView implements Runnable{
     private volatile boolean mPlaying = false;
     private volatile boolean mPaused = true;
 
+    private volatile boolean usrPause = false;
+
     // for playing sound effects
     private SoundPool mSP;
     private int mEat_ID = -1;
@@ -189,6 +191,7 @@ class SnakeGame extends SurfaceView implements Runnable{
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
 
             mPaused =true;
+            usrPause = false;
         }
 
     }
@@ -239,18 +242,29 @@ class SnakeGame extends SurfaceView implements Runnable{
     public boolean onTouchEvent(MotionEvent motionEvent) {
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_UP:
-                if (mPaused) {
-                    mPaused = false;
-                    newGame();
+                if(!usrPause) {
+                    if (mPaused) {
+                        mPaused = false;
+                        newGame();
 
-                    // Don't want to process snake direction for this tap
-                    return true;
+                        // Don't want to process snake direction for this tap
+                        return true;
+                    }
+                    if(motionEvent.getX() < 100 && motionEvent.getY() > 980) {
+                        mPaused = true;
+                        usrPause = true;
+                    }
+                    else {// Let the Snake class handle the input
+                        mSnake.switchHeading(motionEvent);
+                    }
+                    break;
                 }
-
-                // Let the Snake class handle the input
-                mSnake.switchHeading(motionEvent);
-                break;
-
+                else {
+                    mPaused = false;
+                    usrPause = false;
+                    mNextFrameTime = System.currentTimeMillis();
+                    break;
+                }
             default:
                 break;
 
