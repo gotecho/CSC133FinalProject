@@ -3,6 +3,8 @@ package com.example.snakegame;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -50,6 +52,9 @@ class SnakeGame extends SurfaceView implements Runnable{
     // And an apple
     private Apple mApple;
 
+    private Bitmap pause;
+
+    private Bitmap background;
 
     // This is the constructor method that gets called
     // from SnakeActivity
@@ -93,6 +98,20 @@ class SnakeGame extends SurfaceView implements Runnable{
         // Initialize the drawing objects
         mSurfaceHolder = getHolder();
         mPaint = new Paint();
+
+        pause = BitmapFactory
+                .decodeResource(context.getResources(),
+                        R.drawable.pausebutton);
+
+        pause = Bitmap
+                .createScaledBitmap(pause, 100, 100, false);
+
+        background = BitmapFactory
+                .decodeResource(context.getResources(),
+                        R.drawable.flag);
+
+        background = Bitmap
+                .createScaledBitmap(background, 2050, 1080, false);
 
         // Call the constructors of our two game objects
         mApple = new Apple(context,
@@ -204,7 +223,10 @@ class SnakeGame extends SurfaceView implements Runnable{
             mCanvas = mSurfaceHolder.lockCanvas();
 
             // Fill the screen with a color
-            mCanvas.drawColor(Color.argb(255, 26, 128, 182));
+            //mCanvas.drawColor(Color.argb(255, 26, 128, 182));
+            mCanvas.drawBitmap(background, 0, 0, mPaint);
+
+            mCanvas.drawBitmap(pause, 0, 980, mPaint);
 
             // Set the size and color of the mPaint for the text
             mPaint.setColor(Color.argb(255, 255, 255, 255));
@@ -213,9 +235,6 @@ class SnakeGame extends SurfaceView implements Runnable{
             // Draw the score
             mCanvas.drawText("" + mScore, 20, 120, mPaint);
 
-            // Draw the apple and the snake
-            mApple.draw(mCanvas, mPaint);
-            mSnake.draw(mCanvas, mPaint);
 
             // Draw some text while paused
             if(mPaused){
@@ -232,6 +251,9 @@ class SnakeGame extends SurfaceView implements Runnable{
                         200, 700, mPaint);
             }
 
+            // Draw the apple and the snake
+            mApple.draw(mCanvas, mPaint);
+            mSnake.draw(mCanvas, mPaint);
 
             // Unlock the mCanvas and reveal the graphics for this frame
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
