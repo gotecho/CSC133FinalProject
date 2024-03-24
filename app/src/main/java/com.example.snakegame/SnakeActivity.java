@@ -1,16 +1,12 @@
 package com.example.snakegame;
-
 import android.app.Activity;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
-
 public class SnakeActivity extends Activity {
+    SnakeGame mSnakeGame; // Declare an instance of SnakeGame
 
-    // Declare an instance of SnakeGame
-    SnakeGame mSnakeGame;
-
-    // Set the game up
+    // Function: Create the SnakeGame
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,14 +25,14 @@ public class SnakeActivity extends Activity {
         setContentView(mSnakeGame);
     }
 
-    // Start the thread in snakeEngine
+    // Function: Start the thread in snakeEngine
     @Override
     protected void onResume() {
         super.onResume();
         mSnakeGame.resume();
     }
 
-    // Stop the thread in snakeEngine
+    // Function: Stop the thread in snakeEngine
     @Override
     protected void onPause() {
         super.onPause();

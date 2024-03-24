@@ -1,5 +1,4 @@
 package com.example.snakegame;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,39 +6,24 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
 import java.util.Random;
-
 class Apple {
+    private Point location = new Point(); // Location of apple in grid (Not in pixels
+    private Point mSpawnRange; // The range of values we can choose from to spawn an apple
+    private int mSize; // The size of the apple
+    private Bitmap mBitmapApple; // The bitmap to draw the apple
 
-    // The location of the apple on the grid
-    // Not in pixels
-    private Point location = new Point();
-
-    // The range of values we can choose from
-    // to spawn an apple
-    private Point mSpawnRange;
-    private int mSize;
-
-    // An image to represent the apple
-    private Bitmap mBitmapApple;
-
-    /// Set up the apple in the constructor
+    // Constructor: Called when the Apple class is first created
     Apple(Context context, Point sr, int s){
+        mSpawnRange = sr; // Initialize the spawn range
+        mSize = s;        // Initialize the size of the apple
+        location.x = -10; // Initialize the location of the apple
 
-        // Make a note of the passed in spawn range
-        mSpawnRange = sr;
-        // Make a note of the size of an apple
-        mSize = s;
-        // Hide the apple off-screen until the game starts
-        location.x = -10;
-
-        // Load the image to the bitmap
+        // Initialize and resize the bitmap
         mBitmapApple = BitmapFactory.decodeResource(context.getResources(), R.drawable.apple);
-
-        // Resize the bitmap
         mBitmapApple = Bitmap.createScaledBitmap(mBitmapApple, s, s, false);
     }
 
-    // This is called every time an apple is eaten
+    // Function: Spawn an Apple
     void spawn(){
         // Choose two random values and place the apple
         Random random = new Random();
@@ -47,17 +31,15 @@ class Apple {
         location.y = random.nextInt(mSpawnRange.y - 1) + 1;
     }
 
-    // Let SnakeGame know where the apple is
-    // SnakeGame can share this with the snake
-    Point getLocation(){
-        return location;
-    }
-
-    // Draw the apple
+    // Function: Draw the apple
     void draw(Canvas canvas, Paint paint){
         canvas.drawBitmap(mBitmapApple,
                 location.x * mSize, location.y * mSize, paint);
 
     }
 
+    // Getters
+    Point getLocation(){
+        return location;
+    }
 }
