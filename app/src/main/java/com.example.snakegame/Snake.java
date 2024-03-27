@@ -86,14 +86,16 @@ public class Snake implements Drawable {
         return dead;
     }
 
-    // Function: Check if the snake has eaten the apple
-    boolean checkDinner(Point l) {
-        if (segmentLocations.get(0).equals(l)) {
-            segmentLocations.add(new Point(-10, -10));
+    // Function: Check if the snake has eaten a collidable object (e.g., an apple)
+    boolean checkCollide(Collidable collidable) {
+        Point headLocation = segmentLocations.get(0);
+        if (collidable.isColliding(headLocation)) {
+            segmentLocations.add(new Point(-10, -10)); // Add a new segment to the snake
             return true;
         }
         return false;
     }
+
 
     // Function: Draw the snake
     @Override

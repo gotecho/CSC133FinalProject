@@ -6,7 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
 import java.util.Random;
-public class Apple implements Drawable {
+public class Apple implements Drawable, Collidable {
     private final Point location = new Point(); // Location of apple in grid (Not in pixels
     private final Point mSpawnRange; // The range of values we can choose from to spawn an apple
     private final int mSize; // The size of the apple
@@ -39,8 +39,9 @@ public class Apple implements Drawable {
 
     }
 
-    // Getters
-    Point getLocation(){
-        return location;
+    // Function: Check if the apple is at a specific location
+    @Override
+    public boolean isColliding(Point location) {
+        return this.location.equals(location);
     }
 }

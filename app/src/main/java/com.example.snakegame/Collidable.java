@@ -1,2 +1,7 @@
-package com.example.snakegame;public interface Collidable {
+package com.example.snakegame;
+
+import android.graphics.Point;
+
+public interface Collidable {
+    boolean isColliding(Point location);
 }

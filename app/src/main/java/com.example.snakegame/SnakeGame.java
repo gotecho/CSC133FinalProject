@@ -131,7 +131,7 @@ class SnakeGame extends SurfaceView implements Runnable {
     // Function: Update the game
     public void update() {
         mSnake.move();
-        if (mSnake.checkDinner(mApple.getLocation())) {
+        if (mSnake.checkCollide(mApple)) {
             mApple.spawn();
             mScore++;
             mSP.play(mEat_ID, 1, 1, 0, 0, 1);
