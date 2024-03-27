@@ -15,7 +15,9 @@ public abstract class GameObject {
     }
 
     // Getters and Setters
-    protected void setBitmap(Bitmap bitmap) {
+    public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
     }
+
+    public Bitmap getBitmap() {return this.bitmap;}
 }

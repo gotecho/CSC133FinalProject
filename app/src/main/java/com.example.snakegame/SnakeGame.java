@@ -33,10 +33,10 @@ class SnakeGame extends SurfaceView implements Runnable {
     private final Paint mPaint; // Paint to draw with
     private final Snake mSnake; // Snake object
     private final Apple mApple; // Apple object
-    private final Bitmap pause;
+    private final PauseButton pause;
     private final Bitmap background; // Bitmaps for the pause button and background
 
-    private Paint mCustomTextPaint; // Paint for custom font text
+    private final Paint mCustomTextPaint; // Paint for custom font text
 
 
     // Constructor: Called when the SnakeGame class is first created
@@ -53,7 +53,7 @@ class SnakeGame extends SurfaceView implements Runnable {
         mCustomTextPaint = new Paint();
         Typeface customFont = Typeface.createFromAsset(context.getAssets(), "PixelOperator.ttf");
         mCustomTextPaint.setTypeface(customFont);
-        mCustomTextPaint.setColor(Color.WHITE); // Set text color
+        mCustomTextPaint.setColor(Color.BLACK); // Set text color
         mCustomTextPaint.setTextSize(50); // Set text size
 
         // Initialize the SurfaceHolder and Paint
@@ -61,8 +61,10 @@ class SnakeGame extends SurfaceView implements Runnable {
         mPaint = new Paint();
 
         // Load the bitmaps
-        pause = loadAndScaleResource(context, R.drawable.pausebutton, 100, 100);
+        //pause = loadAndScaleResource(context, R.drawable.pausebutton, 100, 100);
         background = loadAndScaleResource(context, R.drawable.flag, 2050, 1080);
+
+        pause = new PauseButton(context);
 
         // Create the Snake and Apple objects
         mApple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
@@ -159,12 +161,14 @@ class SnakeGame extends SurfaceView implements Runnable {
         if (mSurfaceHolder.getSurface().isValid()) {
             mCanvas = mSurfaceHolder.lockCanvas();
             mCanvas.drawBitmap(background, 0, 0, mPaint);
-            mCanvas.drawBitmap(pause, 10, 980, mPaint);
+            //mCanvas.drawBitmap(pause, 10, 980, mPaint);
+            pause.draw(mCanvas, mPaint);
             mPaint.setColor(Color.WHITE);
             mPaint.setTextSize(120);
             mCanvas.drawText(String.valueOf(mScore), 20, 120, mPaint);
             if (mPaused) {
                 mPaint.setTextSize(250);
+                mPaint.setColor(Color.BLACK);
                 mCanvas.drawText(getResources().getString(R.string.tap_to_play), 200, 700, mPaint);
             }
             mApple.draw(mCanvas, mPaint);

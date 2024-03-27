@@ -19,8 +19,8 @@ public class Apple extends GameObject implements Drawable, Collidable {
         location.x = -10; // Initialize the location of the apple
 
         // Initialize and resize the bitmap
-        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.apple);
-        bitmap = Bitmap.createScaledBitmap(bitmap, s, s, false);
+        setBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.apple));
+        setBitmap(Bitmap.createScaledBitmap(getBitmap(), s, s, false));
     }
 
     // Function: Spawn an Apple
@@ -34,7 +34,7 @@ public class Apple extends GameObject implements Drawable, Collidable {
     // Function: Draw the apple
     @Override
     public void draw(Canvas canvas, Paint paint){
-        canvas.drawBitmap(bitmap,
+        canvas.drawBitmap(getBitmap(),
                 location.x * mSize, location.y * mSize, paint);
 
     }

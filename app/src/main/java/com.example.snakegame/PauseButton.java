@@ -6,19 +6,19 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 public class PauseButton extends GameObject implements Drawable {
     // Constructor: Called when the PauseButton class is first created
-    PauseButton(Context context, int ss) {
+    PauseButton(Context context) {
         super(context);
-        bitmap = BitmapFactory
-                .decodeResource(context.getResources(),
-                        R.drawable.pausebutton);
+        setBitmap(loadAndScaleResource(context, R.drawable.pausebutton));
 
-        bitmap = Bitmap
-                .createScaledBitmap(bitmap,
-                        ss, ss, false);
     }
     // Function: Draw the pause button
     @Override
     public void draw(Canvas canvas, Paint paint) {
-        canvas.drawBitmap(bitmap, 100, 980, paint);
+        canvas.drawBitmap(getBitmap(), 10, 980, paint);
+    }
+
+    private Bitmap loadAndScaleResource(Context context, int resourceId) {
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId);
+        return Bitmap.createScaledBitmap(bitmap, 100, 100, false);
     }
 }
