@@ -34,9 +34,13 @@ class SnakeGame extends SurfaceView implements Runnable {
     private final Snake mSnake; // Snake object
     private final Apple mApple; // Apple object
     private final PauseButton pause;
-    private final Bitmap background; // Bitmaps for the pause button and background
-
+    private final Background background;
     private final Paint mCustomTextPaint; // Paint for custom font text
+
+    private final TextPrint pauseText;
+    private final TextPrint author1;
+    private final TextPrint author2;
+    private TextPrint score;
 
 
     // Constructor: Called when the SnakeGame class is first created
@@ -60,11 +64,13 @@ class SnakeGame extends SurfaceView implements Runnable {
         mSurfaceHolder = getHolder();
         mPaint = new Paint();
 
-        // Load the bitmaps
-        //pause = loadAndScaleResource(context, R.drawable.pausebutton, 100, 100);
-        background = loadAndScaleResource(context, R.drawable.flag, 2050, 1080);
-
+        // Initialize all static objects to be drawn
+        background = new Background(context);
         pause = new PauseButton(context);
+        pauseText = new TextPrint(context, "Tap To Play!", 250, 200, 700, Color.BLACK);
+        score = new TextPrint(context, "0", 120, 20, 120, Color.WHITE);
+        author1 = new TextPrint(context, "Kevin Cendana", 50, 1690 , 50, Color.BLACK);
+        author2 = new TextPrint(context, "Anthony Vitro", 50, 1690, 110, Color.BLACK);
 
         // Create the Snake and Apple objects
         mApple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
@@ -160,34 +166,21 @@ class SnakeGame extends SurfaceView implements Runnable {
     public void draw() {
         if (mSurfaceHolder.getSurface().isValid()) {
             mCanvas = mSurfaceHolder.lockCanvas();
-            mCanvas.drawBitmap(background, 0, 0, mPaint);
-            //mCanvas.drawBitmap(pause, 10, 980, mPaint);
+
+            background.draw(mCanvas, mPaint);
             pause.draw(mCanvas, mPaint);
-            mPaint.setColor(Color.WHITE);
-            mPaint.setTextSize(120);
-            mCanvas.drawText(String.valueOf(mScore), 20, 120, mPaint);
+            score.setString(String.valueOf(mScore)); // Update the object with current score
+            score.draw(mCanvas, mPaint);
+
             if (mPaused) {
-                mPaint.setTextSize(250);
-                mPaint.setColor(Color.BLACK);
-                mCanvas.drawText(getResources().getString(R.string.tap_to_play), 200, 700, mPaint);
+                pauseText.draw(mCanvas, mCustomTextPaint);
             }
+
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
 
-            // Draw the first line of text (Kevin Cendana)
-            String firstLine = "Kevin Cendana"; // First line of text
-            float firstLineWidth = mCustomTextPaint.measureText(firstLine); // Measure text width
-            int firstLineX = getWidth() - (int)firstLineWidth - 20; // 20 pixels from the right edge
-            int firstLineY = 50; // 50 pixels from the top
-            mCanvas.drawText(firstLine, firstLineX, firstLineY, mCustomTextPaint);
-
-            // Draw the second line of text (Anthony Vitro)
-            String secondLine = "Anthony Vitro"; // Second line of text
-            float secondLineWidth = mCustomTextPaint.measureText(secondLine); // Measure text width
-            int secondLineX = getWidth() - (int)secondLineWidth - 20; // Align with the first line
-            int secondLineY = firstLineY + 60; // Below the first line, adjust the value as needed
-            mCanvas.drawText(secondLine, secondLineX, secondLineY, mCustomTextPaint);
-
+            author1.draw(mCanvas, mCustomTextPaint);
+            author2.draw(mCanvas, mCustomTextPaint);
 
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
