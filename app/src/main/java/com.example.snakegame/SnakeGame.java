@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -35,6 +36,9 @@ class SnakeGame extends SurfaceView implements Runnable {
     private final Bitmap pause;
     private final Bitmap background; // Bitmaps for the pause button and background
 
+    private Paint mCustomTextPaint; // Paint for custom font text
+
+
     // Constructor: Called when the SnakeGame class is first created
     public SnakeGame(Context context, Point size) {
         super(context);
@@ -44,6 +48,13 @@ class SnakeGame extends SurfaceView implements Runnable {
         // Initialize the SoundPool and load the sounds
         initializeSoundPool(context);
         loadSounds(context);
+
+        // Initialize custom text Paint
+        mCustomTextPaint = new Paint();
+        Typeface customFont = Typeface.createFromAsset(context.getAssets(), "PixelOperator.ttf");
+        mCustomTextPaint.setTypeface(customFont);
+        mCustomTextPaint.setColor(Color.WHITE); // Set text color
+        mCustomTextPaint.setTextSize(50); // Set text size
 
         // Initialize the SurfaceHolder and Paint
         mSurfaceHolder = getHolder();
@@ -158,6 +169,22 @@ class SnakeGame extends SurfaceView implements Runnable {
             }
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
+
+            // Draw the first line of text (Kevin Cendana)
+            String firstLine = "Kevin Cendana"; // First line of text
+            float firstLineWidth = mCustomTextPaint.measureText(firstLine); // Measure text width
+            int firstLineX = getWidth() - (int)firstLineWidth - 20; // 20 pixels from the right edge
+            int firstLineY = 50; // 50 pixels from the top
+            mCanvas.drawText(firstLine, firstLineX, firstLineY, mCustomTextPaint);
+
+            // Draw the second line of text (Anthony Vitro)
+            String secondLine = "Anthony Vitro"; // Second line of text
+            float secondLineWidth = mCustomTextPaint.measureText(secondLine); // Measure text width
+            int secondLineX = getWidth() - (int)secondLineWidth - 20; // Align with the first line
+            int secondLineY = firstLineY + 60; // Below the first line, adjust the value as needed
+            mCanvas.drawText(secondLine, secondLineX, secondLineY, mCustomTextPaint);
+
+
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
     }
