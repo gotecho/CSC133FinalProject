@@ -4,21 +4,21 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-public class PauseButton {
-    private Bitmap pauseButton; // Bitmap for the pause button
-
+public class PauseButton extends GameObject implements Drawable {
     // Constructor: Called when the PauseButton class is first created
     PauseButton(Context context, int ss) {
-        pauseButton = BitmapFactory
+        super(context);
+        bitmap = BitmapFactory
                 .decodeResource(context.getResources(),
                         R.drawable.pausebutton);
 
-        pauseButton = Bitmap
-                .createScaledBitmap(pauseButton,
+        bitmap = Bitmap
+                .createScaledBitmap(bitmap,
                         ss, ss, false);
     }
     // Function: Draw the pause button
-    void draw(Canvas canvas, Paint paint) {
-        canvas.drawBitmap(pauseButton, 100, 980, paint);
+    @Override
+    public void draw(Canvas canvas, Paint paint) {
+        canvas.drawBitmap(bitmap, 100, 980, paint);
     }
 }

@@ -12,23 +12,22 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class Snake implements Drawable {
+public class Snake extends GameObject implements Drawable {
     private final ArrayList<Point> segmentLocations;
     private final int mSegmentSize;
     private final Point mMoveRange;
     private final int halfWayPoint;
     private enum Heading { UP, RIGHT, DOWN, LEFT }
     private Heading heading = Heading.RIGHT;
-
     private final Map<Heading, Bitmap> bitmapForHeading = new EnumMap<>(Heading.class);
-    private Bitmap mBitmapBody;
+
 
     // Constructor: Called when the Snake class is first created
     Snake(Context context, Point mr, int ss) {
+        super(context);
         segmentLocations = new ArrayList<>();
         mSegmentSize = ss;
         mMoveRange = mr;
-
         initializeBitmaps(context, ss);
         halfWayPoint = mr.x * ss / 2;
     }
@@ -36,14 +35,14 @@ public class Snake implements Drawable {
     // Function: Initialize the bitmaps
     private void initializeBitmaps(Context context, int size) {
         Bitmap originalHead = BitmapFactory.decodeResource(context.getResources(), R.drawable.head);
-        mBitmapBody = BitmapFactory.decodeResource(context.getResources(), R.drawable.body);
+        bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.body);
 
         bitmapForHeading.put(Heading.RIGHT, Bitmap.createScaledBitmap(originalHead, size, size, false));
         bitmapForHeading.put(Heading.LEFT, rotateBitmap(bitmapForHeading.get(Heading.RIGHT), 180));
         bitmapForHeading.put(Heading.UP, rotateBitmap(bitmapForHeading.get(Heading.RIGHT), 90));
         bitmapForHeading.put(Heading.DOWN, rotateBitmap(bitmapForHeading.get(Heading.RIGHT), 270));
 
-        mBitmapBody = Bitmap.createScaledBitmap(mBitmapBody, size, size, false);
+        bitmap = Bitmap.createScaledBitmap(bitmap, size, size, false);
     }
 
     // Function: Rotate a bitmap
@@ -103,7 +102,7 @@ public class Snake implements Drawable {
         if (!segmentLocations.isEmpty()) {
             canvas.drawBitmap(bitmapForHeading.get(heading), segmentLocations.get(0).x * mSegmentSize, segmentLocations.get(0).y * mSegmentSize, paint);
             for (int i = 1; i < segmentLocations.size(); i++) {
-                canvas.drawBitmap(mBitmapBody, segmentLocations.get(i).x * mSegmentSize, segmentLocations.get(i).y * mSegmentSize, paint);
+                canvas.drawBitmap(bitmap, segmentLocations.get(i).x * mSegmentSize, segmentLocations.get(i).y * mSegmentSize, paint);
             }
         }
     }
