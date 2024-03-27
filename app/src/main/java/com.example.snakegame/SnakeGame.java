@@ -25,13 +25,15 @@ class SnakeGame extends SurfaceView implements Runnable {
     private SoundPool mSP; // SoundPool to play sounds
     private int mEat_ID = -1, mCrashID = -1; // Sound IDs
     private final int NUM_BLOCKS_WIDE = 40; // Number of blocks wide
-    private int mNumBlocksHigh, mScore; // Number of blocks high and the score
+    private final int mNumBlocksHigh;
+    private int mScore; // Number of blocks high and the score
     private Canvas mCanvas; // Canvas to draw on
-    private SurfaceHolder mSurfaceHolder; // SurfaceHolder to hold the canvas
-    private Paint mPaint; // Paint to draw with
-    private Snake mSnake; // Snake object
-    private Apple mApple; // Apple object
-    private Bitmap pause, background; // Bitmaps for the pause button and background
+    private final SurfaceHolder mSurfaceHolder; // SurfaceHolder to hold the canvas
+    private final Paint mPaint; // Paint to draw with
+    private final Snake mSnake; // Snake object
+    private final Apple mApple; // Apple object
+    private final Bitmap pause;
+    private final Bitmap background; // Bitmaps for the pause button and background
 
     // Constructor: Called when the SnakeGame class is first created
     public SnakeGame(Context context, Point size) {
@@ -149,7 +151,7 @@ class SnakeGame extends SurfaceView implements Runnable {
             mCanvas.drawBitmap(pause, 10, 980, mPaint);
             mPaint.setColor(Color.WHITE);
             mPaint.setTextSize(120);
-            mCanvas.drawText("" + mScore, 20, 120, mPaint);
+            mCanvas.drawText(String.valueOf(mScore), 20, 120, mPaint);
             if (mPaused) {
                 mPaint.setTextSize(250);
                 mCanvas.drawText(getResources().getString(R.string.tap_to_play), 200, 700, mPaint);
