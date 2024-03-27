@@ -12,15 +12,15 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 
-class Snake {
-    private ArrayList<Point> segmentLocations;
-    private int mSegmentSize;
-    private Point mMoveRange;
-    private int halfWayPoint;
+public class Snake implements Drawable {
+    private final ArrayList<Point> segmentLocations;
+    private final int mSegmentSize;
+    private final Point mMoveRange;
+    private final int halfWayPoint;
     private enum Heading { UP, RIGHT, DOWN, LEFT }
     private Heading heading = Heading.RIGHT;
 
-    private Map<Heading, Bitmap> bitmapForHeading = new EnumMap<>(Heading.class);
+    private final Map<Heading, Bitmap> bitmapForHeading = new EnumMap<>(Heading.class);
     private Bitmap mBitmapBody;
 
     // Constructor: Called when the Snake class is first created
@@ -96,7 +96,8 @@ class Snake {
     }
 
     // Function: Draw the snake
-    void draw(Canvas canvas, Paint paint) {
+    @Override
+    public void draw(Canvas canvas, Paint paint) {
         if (!segmentLocations.isEmpty()) {
             canvas.drawBitmap(bitmapForHeading.get(heading), segmentLocations.get(0).x * mSegmentSize, segmentLocations.get(0).y * mSegmentSize, paint);
             for (int i = 1; i < segmentLocations.size(); i++) {
