@@ -1,0 +1,57 @@
+@startuml
+
+' Define interfaces
+interface Drawable {
+}
+
+interface Collidable {
+}
+
+' Define abstract class
+abstract class GameObject {
+}
+
+' Define classes
+class Apple {
+}
+
+class Background {
+}
+
+class PauseButton {
+}
+
+class Snake {
+}
+
+class SnakeActivity {
+}
+
+class SnakeGame {
+}
+
+class TextPrint {
+}
+
+' Extend relationships
+Apple -up-|> GameObject
+Background -up-|> GameObject
+PauseButton -up-|> GameObject
+Snake -up-|> GameObject
+TextPrint -up-|> GameObject
+
+' Implement relationships
+Apple -up-|> Drawable
+Apple -up-|> Collidable
+Background -up-|> Drawable
+PauseButton -up-|> Drawable
+Snake -up-|> Drawable
+SnakeGame -up-|> Runnable
+TextPrint -up-|> Runnable
+
+' Special class relationships
+SnakeActivity -up-|> Activity
+SnakeGame -up-|> SurfaceView
+SnakeGame -up-|> Drawable
+
+@enduml
