@@ -14,7 +14,7 @@ public class PauseButton extends GameObject implements Drawable {
     // Function: Draw the pause button
     @Override
     public void draw(Canvas canvas, Paint paint) {
-        canvas.drawBitmap(getBitmap(), 10, 980, paint);
+        canvas.drawBitmap(getBitmap(), 10,890, paint);
     }
 
     private Bitmap loadAndScaleResource(Context context, int resourceId) {
