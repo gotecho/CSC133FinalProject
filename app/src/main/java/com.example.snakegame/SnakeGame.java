@@ -203,9 +203,10 @@ class SnakeGame extends SurfaceView implements Runnable {
                     return true;
                 }
                 // If the user touches the pause button, pause the game
-                if (motionEvent.getX() < 100 && motionEvent.getY() > 980) {
+                if (pause.isTouched((int) motionEvent.getX(), (int) motionEvent.getY())) {
                     mPaused = true;
                     usrPause = true;
+                    return true;
                 }
                 // Else, if the user touches the screen, switch the snake's heading
                 else {

@@ -21,4 +21,8 @@ public class PauseButton extends GameObject implements Drawable {
         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId);
         return Bitmap.createScaledBitmap(bitmap, 100, 100, false);
     }
+
+    public boolean isTouched(int x, int y) {
+        return x >= 10 && x <= 110 && y >= 890 && y <= 990;
+    }
 }
