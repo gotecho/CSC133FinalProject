@@ -16,6 +16,9 @@ import android.os.Build;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 class SnakeGame extends SurfaceView implements Runnable {
     private Thread mThread = null; // Thread to run the game

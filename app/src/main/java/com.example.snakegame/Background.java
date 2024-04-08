@@ -8,7 +8,7 @@ import android.graphics.Paint;
 
 public class Background extends GameObject implements Drawable{
     private final int height = 1100; // Screen height in pixels
-    private final int width = 2100; // Screen width in pixels
+    private final int width = 3000; // Screen width in pixels
     Background(Context context) {
         super(context);
         setBitmap(loadAndScaleResource(context, R.drawable.background));
