@@ -23,13 +23,13 @@ public class Snake extends GameObject implements Drawable {
 
 
     // Constructor: Called when the Snake class is first created
-    Snake(Context context, Point mr, int ss) {
+    Snake(Context context, Point moveRange, int segmentSize) {
         super(context);
         segmentLocations = new ArrayList<>();
-        mSegmentSize = ss;
-        mMoveRange = mr;
-        initializeBitmaps(context, ss);
-        halfWayPoint = mr.x * ss / 2;
+        mSegmentSize = segmentSize;
+        mMoveRange = moveRange;
+        initializeBitmaps(context, segmentSize);
+        halfWayPoint = moveRange.x * segmentSize / 2;
     }
 
     // Function: Initialize the bitmaps
@@ -53,10 +53,11 @@ public class Snake extends GameObject implements Drawable {
     }
 
     // Function: Reset the snake
-    void reset(int w, int h) {
+    void reset(int width, int height) {
         heading = Heading.RIGHT;
         segmentLocations.clear();
-        segmentLocations.add(new Point(w / 2, h / 2));
+
+        segmentLocations.add(new Point(width / 2, height / 2));
     }
 
     // Function: Move the snake
@@ -65,12 +66,12 @@ public class Snake extends GameObject implements Drawable {
             segmentLocations.get(i).set(segmentLocations.get(i - 1).x, segmentLocations.get(i - 1).y);
         }
 
-        Point p = segmentLocations.get(0);
+        Point position = segmentLocations.get(0);
         switch (heading) {
-            case UP: p.y--; break;
-            case RIGHT: p.x++; break;
-            case DOWN: p.y++; break;
-            case LEFT: p.x--; break;
+            case UP: position.y--; break;
+            case RIGHT: position.x++; break;
+            case DOWN: position.y++; break;
+            case LEFT: position.x--; break;
         }
     }
 

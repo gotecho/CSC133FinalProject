@@ -12,15 +12,15 @@ public class Apple extends GameObject implements Drawable, Collidable {
     private final int mSize; // The size of the apple
 
     // Constructor: Called when the Apple class is first created
-    Apple(Context context, Point sr, int s){
+    Apple(Context context, Point spawnRange, int size){
         super(context);   // Call the constructor of the GameObject class
-        mSpawnRange = sr; // Initialize the spawn range
-        mSize = s;        // Initialize the size of the apple
+        mSpawnRange = spawnRange; // Initialize the spawn range
+        mSize = size;        // Initialize the size of the apple
         location.x = -10; // Initialize the location of the apple
 
         // Initialize and resize the bitmap
         setBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.apple));
-        setBitmap(Bitmap.createScaledBitmap(getBitmap(), s, s, false));
+        setBitmap(Bitmap.createScaledBitmap(getBitmap(), size, size, false));
     }
 
     // Function: Spawn an Apple
