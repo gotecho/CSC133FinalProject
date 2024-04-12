@@ -44,6 +44,8 @@ class SnakeGame extends SurfaceView implements Runnable {
     private final TextPrint author1;
     private final TextPrint author2;
     private TextPrint score;
+    private final GameOver gameOver;
+    private boolean gameOverFlag = false;
 
 
     // Constructor: Called when the SnakeGame class is first created
@@ -78,6 +80,9 @@ class SnakeGame extends SurfaceView implements Runnable {
         // Create the Snake and Apple objects
         mApple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mSnake = new Snake(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+
+        //Initialize gameOver
+        gameOver = new GameOver(context);
     }
 
     // Function: Initialize the SoundPool
@@ -162,6 +167,7 @@ class SnakeGame extends SurfaceView implements Runnable {
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
             mPaused = true;
             usrPause = false;
+            gameOverFlag = true;
         }
     }
 
@@ -185,6 +191,10 @@ class SnakeGame extends SurfaceView implements Runnable {
             author1.draw(mCanvas, mCustomTextPaint);
             author2.draw(mCanvas, mCustomTextPaint);
 
+            if(gameOverFlag){
+                gameOver.draw(mCanvas, mPaint);
+            }
+
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
     }
@@ -194,6 +204,15 @@ class SnakeGame extends SurfaceView implements Runnable {
     public boolean onTouchEvent(MotionEvent motionEvent) {
         // If the user touches the screen..
         if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+            // Start a new game if game is paused and gameOverFlag is true
+            if (mPaused && gameOverFlag) {
+                mPaused = false;
+                usrPause = false;
+                newGame();
+                mNextFrameTime = System.currentTimeMillis();
+                gameOverFlag = false; // Reset gameOverFlag
+                return true;
+            }
             // If the user did not pause the game..
             if (!usrPause) {
                 // If the game is paused, start a new game
