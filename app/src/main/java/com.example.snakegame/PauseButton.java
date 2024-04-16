@@ -11,6 +11,8 @@ public class PauseButton extends GameObject implements Drawable {
         setBitmap(loadAndScaleResource(context, R.drawable.pausebutton));
 
     }
+
+    private boolean pauseStatus = false;
     // Function: Draw the pause button
     @Override
     public void draw(Canvas canvas, Paint paint) {
@@ -22,7 +24,13 @@ public class PauseButton extends GameObject implements Drawable {
         return Bitmap.createScaledBitmap(bitmap, 100, 100, false);
     }
 
+    public void setPauseStatus(boolean status) {
+        pauseStatus = status;
+    }
+
     public boolean isTouched(int x, int y) {
         return x >= 10 && x <= 110 && y >= 890 && y <= 990;
     }
+
+    public boolean isPaused() { return pauseStatus; }
 }
