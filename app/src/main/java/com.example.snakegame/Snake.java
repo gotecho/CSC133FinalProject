@@ -39,8 +39,8 @@ public class Snake extends GameObject implements Drawable {
 
         bitmapForHeading.put(Heading.RIGHT, Bitmap.createScaledBitmap(originalHead, size, size, false));
         bitmapForHeading.put(Heading.LEFT, rotateBitmap(bitmapForHeading.get(Heading.RIGHT), 180));
-        bitmapForHeading.put(Heading.UP, rotateBitmap(bitmapForHeading.get(Heading.RIGHT), 90));
-        bitmapForHeading.put(Heading.DOWN, rotateBitmap(bitmapForHeading.get(Heading.RIGHT), 270));
+        bitmapForHeading.put(Heading.UP, rotateBitmap(bitmapForHeading.get(Heading.RIGHT), 270));
+        bitmapForHeading.put(Heading.DOWN, rotateBitmap(bitmapForHeading.get(Heading.RIGHT), 90));
 
         bitmap = Bitmap.createScaledBitmap(bitmap, size, size, false);
     }
@@ -95,6 +95,12 @@ public class Snake extends GameObject implements Drawable {
         }
         return false;
     }
+    // Function: Check if the snake has eaten a collidable Point object
+    public boolean checkCollide(Point point) {
+        Point head = segmentLocations.get(0);
+        return head.equals(point);
+    }
+
 
 
     // Function: Draw the snake
