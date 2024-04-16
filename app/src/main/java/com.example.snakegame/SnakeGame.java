@@ -16,6 +16,8 @@ import android.os.Build;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 
@@ -30,12 +32,13 @@ class SnakeGame extends SurfaceView implements Runnable {
     private int mEat_ID = -1, mCrashID = -1; // Sound IDs
     private final int NUM_BLOCKS_WIDE = 40; // Number of blocks wide
     private final int mNumBlocksHigh;
-    private int mScore; // Number of blocks high and the score
+    protected int mScore; // Number of blocks high and the score
     private Canvas mCanvas; // Canvas to draw on
     private final SurfaceHolder mSurfaceHolder; // SurfaceHolder to hold the canvas
     private final Paint mPaint; // Paint to draw with
     private final Snake mSnake; // Snake object
     private final Apple mApple; // Apple object
+    private final BadApple mBadApple;
     private final PauseButton pause;
     private final Background background;
     private final Paint mCustomTextPaint; // Paint for custom font text
@@ -46,12 +49,15 @@ class SnakeGame extends SurfaceView implements Runnable {
     private TextPrint score;
     private final GameOver gameOver;
     private boolean gameOverFlag = false;
+    private int blockSize;
+    private Bitmap dirtBlockBitmap;
+    private List<Point> dirtBlocks = new ArrayList<>();
 
 
     // Constructor: Called when the SnakeGame class is first created
     public SnakeGame(Context context, Point size) {
         super(context);
-        int blockSize = size.x / NUM_BLOCKS_WIDE; // Size of a block
+        blockSize = size.x / NUM_BLOCKS_WIDE; // Size of a block
         mNumBlocksHigh = size.y / blockSize; // Number of blocks high
 
         // Initialize the SoundPool and load the sounds
@@ -80,6 +86,10 @@ class SnakeGame extends SurfaceView implements Runnable {
         // Create the Snake and Apple objects
         mApple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mSnake = new Snake(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        mBadApple = new BadApple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        mBadApple.setGame(this);
+
+        dirtBlockBitmap = loadAndScaleResource(context, R.drawable.dirtblock, blockSize, blockSize);
 
         //Initialize gameOver
         gameOver = new GameOver(context);
@@ -124,8 +134,11 @@ class SnakeGame extends SurfaceView implements Runnable {
     public void newGame() {
         mSnake.reset(NUM_BLOCKS_WIDE, mNumBlocksHigh); // Reset the snake
         mApple.spawn(); // Spawn the apple
+        mBadApple.setGame(this);
+        clearBadApple();
         mScore = 0; // Reset the score
         mNextFrameTime = System.currentTimeMillis(); // Reset the frame time
+        dirtBlocks.clear(); //Reset the list of dirt blocks
     }
 
     // Function: Run the game
@@ -135,6 +148,7 @@ class SnakeGame extends SurfaceView implements Runnable {
         while (mPlaying) {
             // If the game is not paused and an update is required, update the game
             if (!mPaused && updateRequired()) {
+                mBadApple.update();
                 update();
             }
             // If the game is not paused, draw the game
@@ -162,8 +176,31 @@ class SnakeGame extends SurfaceView implements Runnable {
             mApple.spawn();
             mScore++;
             mSP.play(mEat_ID, 1, 1, 0, 0, 1);
+            removeDirtBlocksForExplodedBadApple();
+
+            // Remove dirt blocks when snake eats an apple
+            if(mScore > 0){
+                if(!dirtBlocks.isEmpty()){
+                    dirtBlocks.clear();
+                }
+            }
+            if(mScore >= 5 && !mBadApple.isSpawned()){
+                mBadApple.spawn();
+            }
         }
         if (mSnake.detectDeath()) {
+            mSP.play(mCrashID, 1, 1, 0, 0, 1);
+            mPaused = true;
+            usrPause = false;
+            gameOverFlag = true;
+        }
+        if (mSnake.checkCollide(mBadApple)) {
+            mSP.play(mCrashID, 1, 1, 0, 0, 1);
+            mPaused = true;
+            usrPause = false;
+            gameOverFlag = true;
+        }
+        if(checkSnakeDirtBlockCollision()){
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
             mPaused = true;
             usrPause = false;
@@ -187,6 +224,11 @@ class SnakeGame extends SurfaceView implements Runnable {
 
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
+            mBadApple.draw(mCanvas, mPaint);
+            // Draw dirt blocks
+            for (Point dirtBlock : dirtBlocks) {
+                mCanvas.drawBitmap(dirtBlockBitmap, dirtBlock.x * blockSize, dirtBlock.y * blockSize, mPaint);
+            }
 
             author1.draw(mCanvas, mCustomTextPaint);
             author2.draw(mCanvas, mCustomTextPaint);
@@ -259,5 +301,56 @@ class SnakeGame extends SurfaceView implements Runnable {
         mPlaying = true;
         mThread = new Thread(this);
         mThread.start();
+    }
+
+    public void clearBadApple(){
+        mBadApple.clear();
+    }
+
+    // Function: Spawn dirt blocks at close proxity of exploded bad apple
+    public void spawnDirtBlocks(Point explosionLocation, int explosionSize){
+        // Adjust the spawn location based on explosion location & size
+        int startX = Math.max(explosionLocation.x - explosionSize, 0);
+        int startY = Math.max(explosionLocation.y - explosionSize, 0);
+        int endX = Math.min(explosionLocation.x + explosionSize + 1, NUM_BLOCKS_WIDE);
+        int endY = Math.min(explosionLocation.y + explosionSize + 1, mNumBlocksHigh);
+
+        for(int x = startX; x < endX; x++){
+            for(int y = startY; y < endY; y++){
+                dirtBlocks.add(new Point(x, y));
+            }
+        }
+
+    }
+    public void removeDirtBlock(Point location) {
+        if (dirtBlocks.contains(location)) {
+            dirtBlocks.remove(location);
+        }
+    }
+
+    private void removeDirtBlocksForExplodedBadApple() {
+        // Iterate through the dirt blocks and remove those associated with the exploded bad apple
+        List<Point> blocksToRemove = new ArrayList<>();
+        for (Point dirtBlock : dirtBlocks) {
+            if (isDirtBlockAssociatedWithExplodedBadApple(dirtBlock)) {
+                blocksToRemove.add(dirtBlock);
+                // Call the removeDirtBlock method to remove the dirt block
+                removeDirtBlock(dirtBlock);
+            }
+        }
+        dirtBlocks.removeAll(blocksToRemove);
+    }
+    private boolean isDirtBlockAssociatedWithExplodedBadApple(Point dirtBlock) {
+        return mBadApple.isSpawned() && mBadApple.isDirtBlockWithinExplosionRadius(dirtBlock);
+    }
+
+    // Function to check for collisions between the snake and dirt blocks
+    private boolean checkSnakeDirtBlockCollision() {
+        for (Point dirtBlock : dirtBlocks) {
+            if (mSnake.checkCollide(dirtBlock)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
