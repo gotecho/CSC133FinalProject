@@ -46,6 +46,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private TextPrint score;
     private final GameOver gameOver;
     private boolean gameOverFlag = false;
+
+    private int gameMode = 0;
     private int halfwayPoint;
     private TouchControlManager touchManager;
 
@@ -238,7 +240,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                     return touchManager.handleTouchInput(motionEvent);
                 }
                 // If the user touches the pause button, pause the game
-                if (false) {
+                if (gameMode == 1) {
                     touchManager.handleSwipeEvent(motionEvent);
                     mPaused = pause.isPaused();
                     return true;
