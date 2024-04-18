@@ -93,6 +93,12 @@ public class Snake extends GameObject implements Drawable {
         }
         return false;
     }
+    // Function: Check if the snake has eaten a collidable Point object
+    public boolean checkCollide(Point point) {
+        Point head = segmentLocations.get(0);
+        return head.equals(point);
+    }
+
 
 
     // Function: Draw the snake
