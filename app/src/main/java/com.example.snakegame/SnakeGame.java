@@ -40,7 +40,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private final Apple mApple; // Apple object
     static PauseButton pause;
     private final BadApple mBadApple;
-    private final PauseButton pause;
     private final Background background;
     private final Paint mCustomTextPaint; // Paint for custom font text
 
@@ -119,6 +118,12 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             // Create a new SoundPool object
             mSP = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
         }
+    }
+
+    // Function: Load and scale a resource
+    private Bitmap loadAndScaleResource(Context context, int resourceId, int width, int height) {
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId);
+        return Bitmap.createScaledBitmap(bitmap, width, height, false);
     }
 
     // Function: Load the sounds
