@@ -9,6 +9,8 @@ import android.view.WindowManager;
 import android.util.DisplayMetrics;
 
 public class Background extends GameObject implements Drawable{
+
+    private int width;
     Background(Context context) {
         super(context);
         setBitmap(loadAndScaleResource(context, R.drawable.background));
@@ -27,9 +29,13 @@ public class Background extends GameObject implements Drawable{
         WindowManager windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(disMet);
         int height = disMet.heightPixels;
-        int width = disMet.widthPixels;
+        width = disMet.widthPixels;
 
         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId);
         return Bitmap.createScaledBitmap(bitmap, width, height, false);
+    }
+
+    public int getWidth() {
+        return width;
     }
 }

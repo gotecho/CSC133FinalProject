@@ -16,8 +16,7 @@ public class Snake extends GameObject implements Drawable {
     private final ArrayList<Point> segmentLocations;
     private final int mSegmentSize;
     private final Point mMoveRange;
-    private final int halfWayPoint;
-    private enum Heading { UP, RIGHT, DOWN, LEFT }
+    enum Heading { UP, RIGHT, DOWN, LEFT }
     private Heading heading = Heading.RIGHT;
     private final Map<Heading, Bitmap> bitmapForHeading = new EnumMap<>(Heading.class);
 
@@ -29,7 +28,6 @@ public class Snake extends GameObject implements Drawable {
         mSegmentSize = segmentSize;
         mMoveRange = moveRange;
         initializeBitmaps(context, segmentSize);
-        halfWayPoint = moveRange.x * segmentSize / 2;
     }
 
     // Function: Initialize the bitmaps
@@ -115,11 +113,24 @@ public class Snake extends GameObject implements Drawable {
     }
 
     // Function: Handle the touch event & switch the heading
-    void switchHeading(MotionEvent motionEvent) {
-        if (motionEvent.getX() >= halfWayPoint) {
-            heading = Heading.values()[(heading.ordinal() + 1) % Heading.values().length];
-        } else {
-            heading = Heading.values()[(heading.ordinal() + 3) % Heading.values().length]; // +3 for counterclockwise rotation
+    void switchHeading(Heading direction) {
+        if((direction == Heading.LEFT) || (direction == Heading.RIGHT)) {
+            if(direction != heading && direction != Heading.values()[(heading.ordinal() + 2) % Heading.values().length]) {
+                heading = direction;
+            }
+        }
+        else {
+            if(direction != heading && direction != Heading.values()[(heading.ordinal() + 2) % Heading.values().length]) {
+                heading = direction;
+            }
         }
     }
+
+    public Heading getLeft() {
+        return (Heading.values()[(heading.ordinal() + 1) % Heading.values().length]);
+    }
+    public Heading getRight() {
+        return (Heading.values()[(heading.ordinal() + 3) % Heading.values().length]);
+    }
+
 }

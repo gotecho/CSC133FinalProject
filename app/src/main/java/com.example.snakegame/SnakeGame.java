@@ -22,7 +22,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
-class SnakeGame extends SurfaceView implements Runnable {
+class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private Thread mThread = null; // Thread to run the game
     private long mNextFrameTime; // Time of the next frame
     private volatile boolean mPlaying = false; // Whether the game is playing
@@ -38,6 +38,7 @@ class SnakeGame extends SurfaceView implements Runnable {
     private final Paint mPaint; // Paint to draw with
     private final Snake mSnake; // Snake object
     private final Apple mApple; // Apple object
+    static PauseButton pause;
     private final BadApple mBadApple;
     private final PauseButton pause;
     private final Background background;
@@ -52,6 +53,10 @@ class SnakeGame extends SurfaceView implements Runnable {
     private int blockSize;
     private Bitmap dirtBlockBitmap;
     private List<Point> dirtBlocks = new ArrayList<>();
+
+    private int gameMode = 0;
+    private int halfwayPoint;
+    private TouchControlManager touchManager;
 
 
     // Constructor: Called when the SnakeGame class is first created
@@ -83,9 +88,12 @@ class SnakeGame extends SurfaceView implements Runnable {
         author1 = new TextPrint(context, "Kevin Cendana", 50, 1690 , 50, Color.BLACK);
         author2 = new TextPrint(context, "Anthony Vitro", 50, 1690, 110, Color.BLACK);
 
+        halfwayPoint = background.getWidth() / 2;
+
         // Create the Snake and Apple objects
         mApple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mSnake = new Snake(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        touchManager = new TouchControlManager(this);
         mBadApple = new BadApple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mBadApple.setGame(this);
 
@@ -122,12 +130,6 @@ class SnakeGame extends SurfaceView implements Runnable {
         } catch (IOException e) {
             // Error handling
         }
-    }
-
-    // Function: Load and scale a resource
-    private Bitmap loadAndScaleResource(Context context, int resourceId, int width, int height) {
-        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId);
-        return Bitmap.createScaledBitmap(bitmap, width, height, false);
     }
 
     // Function: Start a new game
@@ -241,11 +243,28 @@ class SnakeGame extends SurfaceView implements Runnable {
         }
     }
 
+    @Override
+    public void onDirectionChanged(Snake.Heading direction) {
+        mSnake.switchHeading(direction);
+    }
+    @Override
+    public void rotate(boolean trig) {
+        if(trig) {
+            mSnake.switchHeading(mSnake.getLeft());
+        }
+        else {
+            mSnake.switchHeading(mSnake.getRight());
+        }
+    }
+    @Override
+    public void setPause(boolean input) {
+        pause.setPauseStatus(input);
+    }
+
     // Function: Handle touch events
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         // If the user touches the screen..
-        if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
             // Start a new game if game is paused and gameOverFlag is true
             if (mPaused && gameOverFlag) {
                 mPaused = false;
@@ -256,31 +275,33 @@ class SnakeGame extends SurfaceView implements Runnable {
                 return true;
             }
             // If the user did not pause the game..
-            if (!usrPause) {
+            if (!pause.isPaused()) {
                 // If the game is paused, start a new game
                 if (mPaused) {
                     mPaused = false;
                     newGame();
-                    return true;
+                    return touchManager.handleTouchInput(motionEvent);
                 }
                 // If the user touches the pause button, pause the game
-                if (pause.isTouched((int) motionEvent.getX(), (int) motionEvent.getY())) {
-                    mPaused = true;
-                    usrPause = true;
+                if (gameMode == 1) {
+                    touchManager.handleSwipeEvent(motionEvent);
+                    mPaused = pause.isPaused();
                     return true;
                 }
                 // Else, if the user touches the screen, switch the snake's heading
                 else {
-                    mSnake.switchHeading(motionEvent);
+                    touchManager.handleTouchControl(motionEvent, halfwayPoint);
+                    mPaused = pause.isPaused();
+                    return true;
                 }
             }
             // If the user paused the game, resume the game
             else {
                 mPaused = false;
-                usrPause = false;
+                pause.setPauseStatus(false);
                 mNextFrameTime = System.currentTimeMillis();
             }
-        }
+
         return true;
     }
 
