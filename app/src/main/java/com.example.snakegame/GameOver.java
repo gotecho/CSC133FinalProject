@@ -16,6 +16,7 @@ public class GameOver implements Drawable {
     private final String replayButtonText;
     //private final Rect replayButtonRect;
     private Bitmap replayButtonBitmap;
+    private Bitmap leaderboardButtonBitmap;
 
     public GameOver(Context context) {
         mPaint = new Paint();
@@ -34,15 +35,17 @@ public class GameOver implements Drawable {
 
         replayButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.playagainbutton);
         replayButtonBitmap = Bitmap.createScaledBitmap(replayButtonBitmap, 900, 200, false);
+
+        leaderboardButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.leaderboardbutton);
+        leaderboardButtonBitmap = Bitmap.createScaledBitmap(leaderboardButtonBitmap, 980, 250, false);
     }
 
     public void draw(Canvas canvas, Paint paint) {
         canvas.drawColor(Color.RED);
         canvas.drawText(gameOverText, canvas.getWidth() / 2f, canvas.getHeight() / 2f, mPaint);
 
-        //int buttonLeft = (canvas.getWidth() = replayButtonBitmap.getWidth() )/ 2;
-        //int buttonTop = canvas.getHeight() - replayButtonBitmap.getHeight() - 100;
-        canvas.drawBitmap(replayButtonBitmap, 610, 600, null);
+        canvas.drawBitmap(replayButtonBitmap, 610, 580, null);
+        canvas.drawBitmap(leaderboardButtonBitmap, 540, 750, null);
 
     }
 
