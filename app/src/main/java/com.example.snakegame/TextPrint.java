@@ -32,4 +32,13 @@ public class TextPrint extends GameObject implements Drawable{
         paint.setColor(color);
         canvas.drawText(text, xloc, yloc, paint);
     }
+
+    public void drawCenteredOnBitmap(Canvas canvas, Paint paint, Bitmap bitmap, int bitX, int bitY) {
+        int halfX = bitmap.getWidth()/2;
+        int halfY = bitmap.getHeight()/2;
+        paint.setTextSize(textSize);
+        paint.setColor(color);
+        paint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText(text, bitX + halfX, bitY + halfY, paint);
+    }
 }

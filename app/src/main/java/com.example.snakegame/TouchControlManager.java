@@ -6,6 +6,7 @@ public class TouchControlManager {
     private float downX, downY;
     private ControlListener listener;
 
+
     private boolean pause = false;
 
     public TouchControlManager(ControlListener list) {
@@ -24,7 +25,7 @@ public class TouchControlManager {
             if(SnakeGame.pause.isTouched((int) event.getX(), (int) event.getY())) {
                 listener.setPause(true);
             }
-            if (event.getX() < halfWayPoint) {
+            else if (event.getX() < halfWayPoint) {
                 listener.rotate(true);
             }
             else {
@@ -50,7 +51,7 @@ public class TouchControlManager {
                 if(SnakeGame.pause.isTouched((int) event.getX(), (int) event.getY())) {
                     listener.setPause(true);
                 }
-                if(Math.abs(deltaX) >= SWIPE_THRESH || Math.abs(deltaY) >= SWIPE_THRESH) {
+                else if(Math.abs(deltaX) >= SWIPE_THRESH || Math.abs(deltaY) >= SWIPE_THRESH) {
                     if (Math.abs(deltaX) > Math.abs(deltaY)) {
                         if (deltaX > 0) {
                             listener.onDirectionChanged(Snake.Heading.LEFT);
@@ -66,6 +67,19 @@ public class TouchControlManager {
                     }
                 }
                 return true;
+        }
+        return false;
+    }
+
+    public boolean handleArrowControl(MotionEvent event) {
+        if(event.getAction() == MotionEvent.ACTION_UP) {
+            if(SnakeGame.pause.isTouched((int) event.getX(), (int) event.getY())) {
+                listener.setPause(true);
+            }
+            else if(SnakeGame.arrowButtons.isTouched((int) event.getX(), (int) event.getY())) {
+                listener.onDirectionChanged(SnakeGame.arrowButtons.getDirection((int) event.getX(), (int) event.getY()));
+            }
+            return true;
         }
         return false;
     }

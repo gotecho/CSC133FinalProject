@@ -17,17 +17,17 @@ public class ControlButton extends GameObject implements Drawable {
     ControlButton(Context context) {
         super(context);
         setBitmap(loadAndScaleResource(context, R.drawable.controlbutton));
-        controlModes[0] = new TextPrint(context, "Arrow Keys", 25, 1400, 850,Color.BLACK);
-        controlModes[1] = new TextPrint(context, "Tap Left or Right Side", 25, 1400, 850, Color.BLACK);
-        controlModes[2] = new TextPrint(context, "Directional Swipe", 25, 750, 850, Color.BLACK);
-        currentControl = 1;
+        controlModes[0] = new TextPrint(context, "Arrow Keys", 50, 1400, 850,Color.BLACK);
+        controlModes[1] = new TextPrint(context, "Tap Left or Right Side", 30, 1400, 850, Color.BLACK);
+        controlModes[2] = new TextPrint(context, "Directional Swipe", 35, 750, 850, Color.BLACK);
+        currentControl = 0;
     }
 
     // Function: Draw the pause button
     @Override
     public void draw(Canvas canvas, Paint paint) {
         canvas.drawBitmap(getBitmap(), 1400,790, paint);
-        controlModes[currentControl].draw(canvas, paint);
+        controlModes[currentControl].drawCenteredOnBitmap(canvas, paint, getBitmap(), 1400, 800);
     }
 
     private Bitmap loadAndScaleResource(Context context, int resourceId) {
@@ -37,7 +37,7 @@ public class ControlButton extends GameObject implements Drawable {
 
     public boolean isTouched(int x, int y) {
         if(x >= 1400 && x <= 1800 && y >= 790 && y <= 1090) {
-            currentControl = currentControl + 1 % 3;
+            currentControl = (currentControl + 1) % 3;
             return true;
         }
         return false;
