@@ -16,7 +16,7 @@ public class Snake extends GameObject implements Drawable {
     private final ArrayList<Point> segmentLocations;
     private final int mSegmentSize;
     private final Point mMoveRange;
-    enum Heading { UP, RIGHT, DOWN, LEFT }
+    public enum Heading { UP, RIGHT, DOWN, LEFT }
     private Heading heading = Heading.RIGHT;
     private final Map<Heading, Bitmap> bitmapForHeading = new EnumMap<>(Heading.class);
 

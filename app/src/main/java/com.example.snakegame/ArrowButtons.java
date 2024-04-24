@@ -11,7 +11,6 @@ import java.util.Map;
 
 public class ArrowButtons extends GameObject implements Drawable {
     Bitmap[] directions = new Bitmap[4];
-    enum Heading { UP, RIGHT, DOWN, LEFT }
     private final Map<Snake.Heading, Bitmap> bitmapForHeading = new EnumMap<>(Snake.Heading.class);
     public ArrowButtons(Context context) {
         super(context);

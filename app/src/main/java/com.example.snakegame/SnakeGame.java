@@ -1,4 +1,5 @@
 package com.example.snakegame;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -37,20 +38,17 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     static PauseButton pause;
     private final Background background;
     private final Paint mCustomTextPaint; // Paint for custom font text
-
     private final TextPrint pauseText;
     private final TextPrint author1;
     private final TextPrint author2;
     private TextPrint score;
     private final GameOver gameOver;
     private boolean gameOverFlag = false;
-
-    private int gameMode = 0;
     private int blockSize;
     private Bitmap dirtBlockBitmap;
     private List<Point> dirtBlocks = new ArrayList<Point>();
-    private int halfwayPoint;
-    private TouchControlManager touchManager;
+    private final int halfwayPoint;
+    private final TouchControlManager touchManager;
     private final ControlButton controlButton;
     static ArrowButtons arrowButtons;
 
@@ -79,7 +77,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         // Initialize all static objects to be drawn
         background = new Background(context);
         pause = new PauseButton(context);
-        controlButton = new ControlButton(context);
+        controlButton = new ControlButton(context, mCustomTextPaint);
         arrowButtons = new ArrowButtons(context);
         pauseText = new TextPrint(context, "Tap To Play!", 250, 200, 700, Color.BLACK);
         score = new TextPrint(context, "0", 120, 20, 120, Color.WHITE);

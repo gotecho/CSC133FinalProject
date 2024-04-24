@@ -10,12 +10,14 @@ import android.graphics.Paint;
 import org.w3c.dom.Text;
 
 public class ControlButton extends GameObject implements Drawable {
-    private TextPrint[] controlModes = new TextPrint[3];
+    private final TextPrint[] controlModes = new TextPrint[3];
     private int currentControl;
+    private Paint customPaint;
 
     // Constructor for Control Switching button with text for the modes initialized as well
-    ControlButton(Context context) {
+    ControlButton(Context context, Paint customPaint) {
         super(context);
+        this.customPaint = customPaint;
         setBitmap(loadAndScaleResource(context, R.drawable.controlbutton));
         controlModes[0] = new TextPrint(context, "Arrow Keys", 50, 1400, 850,Color.BLACK);
         controlModes[1] = new TextPrint(context, "Tap Left or Right Side", 30, 1400, 850, Color.BLACK);
@@ -27,7 +29,7 @@ public class ControlButton extends GameObject implements Drawable {
     @Override
     public void draw(Canvas canvas, Paint paint) {
         canvas.drawBitmap(getBitmap(), 1400,790, paint);
-        controlModes[currentControl].drawCenteredOnBitmap(canvas, paint, getBitmap(), 1400, 800);
+        controlModes[currentControl].drawCenteredOnBitmap(canvas, customPaint, getBitmap(), 1400, 800);
     }
 
     private Bitmap loadAndScaleResource(Context context, int resourceId) {

@@ -10,16 +10,16 @@ import android.graphics.Color;
 public class TextPrint extends GameObject implements Drawable{
 
     private String text;
-    private int xloc;
-    private int yloc;
-    private int textSize;
-    private int color;
-    public TextPrint(Context context, String input, int size, int xloc, int yloc, int color) {
+    private final int xLoc;
+    private final int yLoc;
+    private final int textSize;
+    private final int color;
+    public TextPrint(Context context, String input, int size, int xLoc, int yLoc, int color) {
         super(context);
         text = input;
         this.textSize = size;
-        this.xloc = xloc;
-        this.yloc = yloc;
+        this.xLoc = xLoc;
+        this.yLoc = yLoc;
         this.color = color;
     }
     public void setString(String newInput) {
@@ -30,7 +30,7 @@ public class TextPrint extends GameObject implements Drawable{
     public void draw(Canvas canvas, Paint paint) {
         paint.setTextSize(textSize);
         paint.setColor(color);
-        canvas.drawText(text, xloc, yloc, paint);
+        canvas.drawText(text, xLoc, yLoc, paint);
     }
 
     public void drawCenteredOnBitmap(Canvas canvas, Paint paint, Bitmap bitmap, int bitX, int bitY) {

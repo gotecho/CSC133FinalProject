@@ -4,9 +4,7 @@ import android.view.MotionEvent;
 public class TouchControlManager {
     private static final int SWIPE_THRESH = 100;
     private float downX, downY;
-    private ControlListener listener;
-
-
+    private final ControlListener listener;
     private boolean pause = false;
 
     public TouchControlManager(ControlListener list) {
@@ -20,7 +18,7 @@ public class TouchControlManager {
         return true;
     }
 
-    public boolean handleTouchControl(MotionEvent event, int halfWayPoint) {
+    public void handleTouchControl(MotionEvent event, int halfWayPoint) {
         if (event.getAction() == MotionEvent.ACTION_UP) {
             if(SnakeGame.pause.isTouched((int) event.getX(), (int) event.getY())) {
                 listener.setPause(true);
@@ -35,7 +33,7 @@ public class TouchControlManager {
         return true;
     }
 
-    public boolean handleSwipeEvent(MotionEvent event) {
+    public void handleSwipeEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 downX = event.getX();
@@ -71,7 +69,7 @@ public class TouchControlManager {
         return false;
     }
 
-    public boolean handleArrowControl(MotionEvent event) {
+    public void handleArrowControl(MotionEvent event) {
         if(event.getAction() == MotionEvent.ACTION_UP) {
             if(SnakeGame.pause.isTouched((int) event.getX(), (int) event.getY())) {
                 listener.setPause(true);
