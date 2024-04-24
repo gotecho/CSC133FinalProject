@@ -18,6 +18,12 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.util.ArrayList;
 import java.util.List;
+import android.app.AlertDialog;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.ArrayAdapter;
+import android.app.Activity;
 
 import androidx.annotation.NonNull;
 
@@ -56,6 +62,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private int gameMode = 0;
     private int halfwayPoint;
     private TouchControlManager touchManager;
+    private Leaderboard leaderboard;
 
 
     // Constructor: Called when the SnakeGame class is first created
@@ -67,6 +74,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         // Initialize the SoundPool and load the sounds
         initializeSoundPool(context);
         loadSounds(context);
+
+        leaderboard = new Leaderboard(); // initialize leaderboard
 
         // Initialize custom text Paint
         mCustomTextPaint = new Paint();
@@ -212,6 +221,11 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             mPaused = true;
             usrPause = false;
             gameOverFlag = true;
+        }
+        if (gameOverFlag) {
+            Player currentPlayer = new Player("Current Player", mScore);
+            leaderboard.addPlayer(currentPlayer);
+            showLeaderboard(); // Display the leaderboard
         }
     }
 
@@ -379,4 +393,25 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         }
         return false;
     }
+    private void showLeaderboard() {
+        ((Activity) getContext()).runOnUiThread(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            LayoutInflater inflater = LayoutInflater.from(getContext());
+            View dialogView = inflater.inflate(R.layout.dialog_leaderboard, null);
+            builder.setView(dialogView);
+
+            ListView listView = dialogView.findViewById(R.id.leaderboard_list);
+            List<String> playerScores = new ArrayList<>();
+            for (Player player : leaderboard.getPlayers()) {
+                playerScores.add(player.toString());
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, playerScores);
+            listView.setAdapter(adapter);
+
+            builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        });
+    }
+
 }
