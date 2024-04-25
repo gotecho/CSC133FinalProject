@@ -1,9 +1,8 @@
 package com.example.snakegame;
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -24,7 +23,6 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import android.app.Activity;
-
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
@@ -48,7 +46,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private final BadApple mBadApple;
     private final Background background;
     private final Paint mCustomTextPaint; // Paint for custom font text
-
     private final TextPrint pauseText;
     private final TextPrint author1;
     private final TextPrint author2;
@@ -58,12 +55,15 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private int blockSize;
     private Bitmap dirtBlockBitmap;
     private List<Point> dirtBlocks = new ArrayList<>();
-
     private int gameMode = 0;
     private int halfwayPoint;
     private TouchControlManager touchManager;
     private Leaderboard leaderboard;
-
+    private List<Point> dirtBlocks = new ArrayList<Point>();
+    private final int halfwayPoint;
+    private final TouchControlManager touchManager;
+    private final ControlButton controlButton;
+    static ArrowButtons arrowButtons;
 
     // Constructor: Called when the SnakeGame class is first created
     public SnakeGame(Context context, Point size) {
@@ -91,6 +91,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         // Initialize all static objects to be drawn
         background = new Background(context);
         pause = new PauseButton(context);
+        controlButton = new ControlButton(context, mCustomTextPaint);
+        arrowButtons = new ArrowButtons(context);
         pauseText = new TextPrint(context, "Tap To Play!", 250, 200, 700, Color.BLACK);
         score = new TextPrint(context, "0", 120, 20, 120, Color.WHITE);
         author1 = new TextPrint(context, "Kevin Cendana", 50, 1690 , 50, Color.BLACK);
@@ -238,11 +240,17 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             pause.draw(mCanvas, mPaint);
             score.setString(String.valueOf(mScore)); // Update the object with current score
             score.draw(mCanvas, mPaint);
-
             if (mPaused) {
+                controlButton.draw(mCanvas, mPaint);
                 pauseText.draw(mCanvas, mCustomTextPaint);
+                author1.draw(mCanvas, mCustomTextPaint);
+                author2.draw(mCanvas, mCustomTextPaint);
             }
-
+            else {
+                if(controlButton.getCurrentControl() == 0) {
+                    arrowButtons.draw(mCanvas, mPaint);
+                }
+            }
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
             mBadApple.draw(mCanvas, mPaint);
@@ -285,6 +293,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     public boolean onTouchEvent(MotionEvent motionEvent) {
         // If the user touches the screen..
             // Start a new game if game is paused and gameOverFlag is true
+            int mode = controlButton.getCurrentControl();
             if (mPaused && gameOverFlag) {
                 mPaused = false;
                 usrPause = false;
@@ -301,24 +310,33 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                     newGame();
                     return touchManager.handleTouchInput(motionEvent);
                 }
-                // If the user touches the pause button, pause the game
-                if (gameMode == 1) {
+                // Swipe controls
+                if (mode == 2) {
                     touchManager.handleSwipeEvent(motionEvent);
                     mPaused = pause.isPaused();
                     return true;
                 }
-                // Else, if the user touches the screen, switch the snake's heading
-                else {
+                // Touch controls
+                else if (mode == 1) {
                     touchManager.handleTouchControl(motionEvent, halfwayPoint);
+                    mPaused = pause.isPaused();
+                    return true;
+                }
+                else if (mode == 0) {
+                    touchManager.handleArrowControl(motionEvent);
                     mPaused = pause.isPaused();
                     return true;
                 }
             }
             // If the user paused the game, resume the game
             else {
-                mPaused = false;
-                pause.setPauseStatus(false);
-                mNextFrameTime = System.currentTimeMillis();
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if(!controlButton.isTouched((int) motionEvent.getX(), (int) motionEvent.getY())) {
+                        mPaused = false;
+                        pause.setPauseStatus(false);
+                        mNextFrameTime = System.currentTimeMillis();
+                    }
+                }
             }
 
         return true;
