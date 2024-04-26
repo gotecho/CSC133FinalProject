@@ -13,10 +13,11 @@ import android.view.MotionEvent;
 public class GameOver implements Drawable {
     private final Paint mPaint;
     private final String gameOverText;
-    private final String replayButtonText;
-    //private final Rect replayButtonRect;
     private Bitmap replayButtonBitmap;
+    private final Rect replayButtonRect;
+
     private Bitmap leaderboardButtonBitmap;
+    private Canvas canvas;
 
     public GameOver(Context context) {
         mPaint = new Paint();
@@ -30,14 +31,21 @@ public class GameOver implements Drawable {
         mPaint.setTypeface(customFont);
 
         gameOverText = "Game Over!";
-        replayButtonText = "Replay";
-        //replayButtonRect = new Rect();
 
         replayButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.playagainbutton);
+        int buttonWidth = replayButtonBitmap.getWidth();
+        int buttonHeight = replayButtonBitmap.getHeight();
+        int buttonX = 610; // Adjust as needed
+        int buttonY = 580; // Adjust as needed
+
+        // Initialize the bounds of the "Play Again" button
+        replayButtonRect = new Rect(buttonX, buttonY, buttonX + buttonWidth, buttonY + buttonHeight);
+
         replayButtonBitmap = Bitmap.createScaledBitmap(replayButtonBitmap, 900, 200, false);
 
         leaderboardButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.leaderboardbutton);
         leaderboardButtonBitmap = Bitmap.createScaledBitmap(leaderboardButtonBitmap, 980, 250, false);
+
     }
 
     public void draw(Canvas canvas, Paint paint) {
@@ -49,5 +57,10 @@ public class GameOver implements Drawable {
 
     }
 
-    // Method to check if the replay button is touched
+    public boolean isReplayButtonTouched(int x, int y){
+        return x >= 610 && x <= 610 + replayButtonBitmap.getWidth() &&
+                y >= 580 && y <= 580 + replayButtonBitmap.getHeight();
+
+    }
+
 }
