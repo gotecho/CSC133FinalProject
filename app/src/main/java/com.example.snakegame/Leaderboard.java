@@ -26,4 +26,8 @@ public class Leaderboard {
             System.out.println(player);
         }
     }
+
+    public boolean isShown(boolean flag){
+        return flag;
+    }
 }
