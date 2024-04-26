@@ -61,6 +61,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private Leaderboard leaderboard;
     private final TouchControlManager touchManager;
     private final ControlButton controlButton;
+
+    private boolean displayedFlag;
     static ArrowButtons arrowButtons;
 
     // Constructor: Called when the SnakeGame class is first created
@@ -155,6 +157,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         mScore = 0; // Reset the score
         mNextFrameTime = System.currentTimeMillis(); // Reset the frame time
         dirtBlocks.clear(); //Reset the list of dirt blocks
+        displayedFlag = false;
     }
 
     // Function: Run the game
@@ -225,6 +228,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         if (gameOverFlag) {
             Player currentPlayer = new Player("Current Player", mScore);
             leaderboard.addPlayer(currentPlayer);
+            displayedFlag = true;
+            leaderboard.isShown(displayedFlag);
             showLeaderboard(); // Display the leaderboard
         }
     }
