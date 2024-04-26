@@ -25,6 +25,13 @@ import android.widget.ArrayAdapter;
 import android.app.Activity;
 import android.graphics.BitmapFactory;
 import androidx.annotation.NonNull;
+import com.example.snakegame.Leaderboard;
+
+// Importing multiple classes from the same package
+import com.example.snakegame.ControlButton;
+import com.example.snakegame.ArrowButtons;
+
+
 
 import java.io.IOException;
 class SnakeGame extends SurfaceView implements Runnable, ControlListener {
@@ -61,7 +68,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private Leaderboard leaderboard;
     private final TouchControlManager touchManager;
     private final ControlButton controlButton;
-
     private boolean displayedFlag;
     static ArrowButtons arrowButtons;
 
@@ -295,31 +301,21 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         // If the user touches the screen..
-<<<<<<< HEAD
-<<<<<<< HEAD
-            // Start a new game if game is paused and gameOverFlag is true
-            int mode = controlButton.getCurrentControl();
-            if (mPaused && gameOverFlag) {
-=======
-=======
->>>>>>> cd6caead239c2a50564fc0b66d7522d04f1c82ce
-        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-            int touchX = (int) motionEvent.getX();
-            int touchY = (int) motionEvent.getY();
+        // Start a new game if game is paused and gameOverFlag is true
+        int mode = controlButton.getCurrentControl();
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                int touchX = (int) motionEvent.getX();
+                int touchY = (int) motionEvent.getY();
 
-            if (mPaused && gameOverFlag && gameOver.isReplayButtonTouched(touchX, touchY)) {
-<<<<<<< HEAD
->>>>>>> cd6caea (Functional Play Again button. If you click on it, it will start a new game but if you click anywhere else nothing will happen.)
-=======
->>>>>>> cd6caead239c2a50564fc0b66d7522d04f1c82ce
-                mPaused = false;
-                usrPause = false;
-                newGame();
-                mNextFrameTime = System.currentTimeMillis();
-                gameOverFlag = false; // Reset gameOverFlag
-                return true;
+                if (mPaused && gameOverFlag && gameOver.isReplayButtonTouched(touchX, touchY)) {
+                    mPaused = false;
+                    usrPause = false;
+                    newGame();
+                    mNextFrameTime = System.currentTimeMillis();
+                    gameOverFlag = false; // Reset gameOverFlag
+                    return true;
+                }
             }
-        }
             // If the game is paused and gameOverFlag is true, do nothing
             if (mPaused && gameOverFlag) {
                 return true;
@@ -344,8 +340,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                     touchManager.handleTouchControl(motionEvent, halfwayPoint);
                     mPaused = pause.isPaused();
                     return true;
-                }
-                else if (mode == 0) {
+                } else if (mode == 0) {
                     touchManager.handleArrowControl(motionEvent);
                     mPaused = pause.isPaused();
                     return true;
@@ -353,8 +348,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             }
             // If the user paused the game, resume the game
             else {
-                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    if(!controlButton.isTouched((int) motionEvent.getX(), (int) motionEvent.getY())) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if (!controlButton.isTouched((int) motionEvent.getX(), (int) motionEvent.getY())) {
                         mPaused = false;
                         pause.setPauseStatus(false);
                         mNextFrameTime = System.currentTimeMillis();
