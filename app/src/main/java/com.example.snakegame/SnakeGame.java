@@ -295,9 +295,17 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
         // If the user touches the screen..
+<<<<<<< HEAD
             // Start a new game if game is paused and gameOverFlag is true
             int mode = controlButton.getCurrentControl();
             if (mPaused && gameOverFlag) {
+=======
+        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+            int touchX = (int) motionEvent.getX();
+            int touchY = (int) motionEvent.getY();
+
+            if (mPaused && gameOverFlag && gameOver.isReplayButtonTouched(touchX, touchY)) {
+>>>>>>> cd6caea (Functional Play Again button. If you click on it, it will start a new game but if you click anywhere else nothing will happen.)
                 mPaused = false;
                 usrPause = false;
                 newGame();
@@ -305,6 +313,12 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 gameOverFlag = false; // Reset gameOverFlag
                 return true;
             }
+        }
+            // If the game is paused and gameOverFlag is true, do nothing
+            if (mPaused && gameOverFlag) {
+                return true;
+            }
+
             // If the user did not pause the game..
             if (!pause.isPaused()) {
                 // If the game is paused, start a new game
@@ -342,8 +356,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 }
             }
 
-        return true;
-    }
+            return true;
+        }
 
     // Function: Pause the game
     public void pause() {
