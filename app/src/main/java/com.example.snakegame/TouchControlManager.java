@@ -30,7 +30,6 @@ public class TouchControlManager {
                 listener.rotate(false);
             }
         }
-        return true;
     }
 
     public void handleSwipeEvent(MotionEvent event) {
@@ -42,7 +41,6 @@ public class TouchControlManager {
                     pause = true;
 
                 }
-                return true;
             case MotionEvent.ACTION_UP:
                 float deltaX = downX - event.getX();
                 float deltaY = downY - event.getY();
@@ -64,9 +62,7 @@ public class TouchControlManager {
                         }
                     }
                 }
-                return true;
         }
-        return false;
     }
 
     public void handleArrowControl(MotionEvent event) {
@@ -77,8 +73,6 @@ public class TouchControlManager {
             else if(SnakeGame.arrowButtons.isTouched((int) event.getX(), (int) event.getY())) {
                 listener.onDirectionChanged(SnakeGame.arrowButtons.getDirection((int) event.getX(), (int) event.getY()));
             }
-            return true;
         }
-        return false;
     }
 }

@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import android.app.Activity;
+import android.graphics.BitmapFactory;
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
@@ -57,10 +58,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private List<Point> dirtBlocks = new ArrayList<>();
     private int gameMode = 0;
     private int halfwayPoint;
-    private TouchControlManager touchManager;
     private Leaderboard leaderboard;
-    private List<Point> dirtBlocks = new ArrayList<Point>();
-    private final int halfwayPoint;
     private final TouchControlManager touchManager;
     private final ControlButton controlButton;
     static ArrowButtons arrowButtons;
@@ -91,7 +89,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         // Initialize all static objects to be drawn
         background = new Background(context);
         pause = new PauseButton(context);
-        controlButton = new ControlButton(context, mCustomTextPaint);
+        controlButton = new ControlButton(context, mCustomTextPaint, 1400, 780, 300, 400);
         arrowButtons = new ArrowButtons(context);
         pauseText = new TextPrint(context, "Tap To Play!", 250, 200, 700, Color.BLACK);
         score = new TextPrint(context, "0", 120, 20, 120, Color.WHITE);
