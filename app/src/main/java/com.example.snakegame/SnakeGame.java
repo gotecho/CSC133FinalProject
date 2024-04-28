@@ -76,6 +76,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     static ArrowButtons arrowButtons;
     List<PowerUp> powerUps;
 
+    private TitleScreen titleScreen;
+    private PauseScreen pauseScreen;
 
     // Constructor: Called when the SnakeGame class is first created
     public SnakeGame(Context context, Point size) {
@@ -102,6 +104,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
         // Initialize all static objects to be drawn
         background = new Background(context);
+        titleScreen = new TitleScreen(context, background.getWidth(), background.getHeight(), mPaint);
+        pauseScreen = new PauseScreen(context, background.getWidth(), background.getHeight(), mPaint);
         pause = new PauseButton(context);
         controlButton = new ControlButton(context, mCustomTextPaint, 1400, 780, 300, 400);
         arrowButtons = new ArrowButtons(context);
@@ -290,19 +294,18 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             pause.draw(mCanvas, mPaint);
             score.setString(String.valueOf(mScore)); // Update the object with current score
             score.draw(mCanvas, mPaint);
+            mApple.draw(mCanvas, mPaint);
+            mSnake.draw(mCanvas, mPaint);
             if (mPaused) {
-                controlButton.draw(mCanvas, mPaint);
-                pauseText.draw(mCanvas, mCustomTextPaint);
-                author1.draw(mCanvas, mCustomTextPaint);
-                author2.draw(mCanvas, mCustomTextPaint);
+                if(!titleScreen.isShowing()) {
+                    pauseScreen.draw(mCanvas, mPaint);
+                }
             }
             else {
                 if(controlButton.getCurrentControl() == 0) {
                     arrowButtons.draw(mCanvas, mPaint);
                 }
             }
-            mApple.draw(mCanvas, mPaint);
-            mSnake.draw(mCanvas, mPaint);
             mBadApple.draw(mCanvas, mPaint);
 
             // Draw power-ups
@@ -314,12 +317,11 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             for (Point dirtBlock : dirtBlocks) {
                 mCanvas.drawBitmap(dirtBlockBitmap, dirtBlock.x * blockSize, dirtBlock.y * blockSize, mPaint);
             }
-
-            author1.draw(mCanvas, mCustomTextPaint);
-            author2.draw(mCanvas, mCustomTextPaint);
-
             if(gameOverFlag){
                 gameOver.draw(mCanvas, mPaint);
+            }
+            if(titleScreen.isShowing()) {
+                titleScreen.draw(mCanvas, mPaint);
             }
 
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
@@ -368,6 +370,10 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 return true;
             }
 
+            if (mPaused && titleScreen.isShowing()) {
+                titleScreen.setShowing(false);
+                return true;
+            }
             // If the user did not pause the game..
             if (!pause.isPaused()) {
                 // If the game is paused, start a new game
@@ -490,7 +496,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, playerScores);
             listView.setAdapter(adapter);
-
             builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
             AlertDialog dialog = builder.create();
             dialog.show();

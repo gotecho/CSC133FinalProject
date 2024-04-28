@@ -10,10 +10,11 @@ import android.graphics.Paint;
 import org.w3c.dom.Text;
 
 public class ControlButton extends GameObject implements Drawable {
-    int xLocation;
-    int yLocation;
-    int xSize;
-    int ySize;
+    private int xLocation;
+    private int yLocation;
+    private int xSize;
+    private int ySize;
+    private final TextPrint buttonText;
     private final TextPrint[] otherButtonText = new TextPrint[3];
     private final TextPrint[] controlModes = new TextPrint[3];
     private int currentControl;
@@ -32,6 +33,17 @@ public class ControlButton extends GameObject implements Drawable {
         controlModes[1] = new TextPrint(context, "Tap Left or Right Side", 50, xLocation, yLocation, Color.BLACK);
         controlModes[2] = new TextPrint(context, "Directional Swipe", 35, xLocation, yLocation, Color.BLACK);
         currentControl = 0;
+        buttonText = new TextPrint(context, "Directional Swipe", 35, xLocation, yLocation, Color.BLACK);
+    }
+    ControlButton(Context context, Paint customPaint, int xLoc, int yLoc, int xSize, int ySize, String buttonText, int textSize) {
+        super(context);
+        this.customPaint = customPaint;
+        xLocation = xLoc;
+        yLocation = yLoc;
+        this.xSize = xSize;
+        this.ySize = ySize;
+        setBitmap(loadAndScaleResource(context, R.drawable.controlbutton));
+        this.buttonText = new TextPrint(context, buttonText, textSize, xLocation, yLocation, Color.BLACK);
     }
 
     // Function: Draw the pause button
@@ -39,6 +51,10 @@ public class ControlButton extends GameObject implements Drawable {
     public void draw(Canvas canvas, Paint paint) {
         canvas.drawBitmap(getBitmap(), xLocation,yLocation, paint);
         controlModes[currentControl].drawCenteredOnBitmap(canvas, customPaint, getBitmap());
+    }
+    public void drawFix(Canvas canvas, Paint paint) {
+        canvas.drawBitmap(getBitmap(), xLocation, yLocation, paint);
+        buttonText.drawCenteredOnBitmap(canvas, customPaint, getBitmap());
     }
 
     private Bitmap loadAndScaleResource(Context context, int resourceId) {
