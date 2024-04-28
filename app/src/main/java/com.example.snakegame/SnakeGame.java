@@ -12,10 +12,12 @@ import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import android.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -34,6 +36,8 @@ import com.example.snakegame.ArrowButtons;
 
 
 import java.io.IOException;
+import java.util.Random;
+
 class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private Thread mThread = null; // Thread to run the game
     private long mNextFrameTime; // Time of the next frame
@@ -70,6 +74,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private final ControlButton controlButton;
     private boolean displayedFlag;
     static ArrowButtons arrowButtons;
+    List<PowerUp> powerUps;
+
 
     // Constructor: Called when the SnakeGame class is first created
     public SnakeGame(Context context, Point size) {
@@ -117,6 +123,11 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
         //Initialize gameOver
         gameOver = new GameOver(context);
+
+        //Initialize PowerUps
+        powerUps = new ArrayList<>();
+        initializePowerUps(context);
+        Log.d("print-log", "PowerUps: " + powerUps);
     }
 
     // Function: Initialize the SoundPool
@@ -134,6 +145,16 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         } else {
             // Create a new SoundPool object
             mSP = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        }
+    }
+
+    // Function: Initialize Power Ups
+    private void initializePowerUps(Context context) {
+        PowerUp scoreDoubler = new PowerUp("Score Doubler", context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize, R.drawable.scoredoubler);
+        powerUps.add(scoreDoubler);
+        // Loop through all PowerUps and print their names
+        for (PowerUp powerUp : powerUps) {
+            Log.d("print-log", "PowerUp Name: " + powerUp.getName());
         }
     }
 
@@ -197,11 +218,19 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     // Function: Update the game
     public void update() {
         mSnake.move();
+        // If the snake eats an apple..
         if (mSnake.checkCollide(mApple)) {
-            mApple.spawn();
-            mScore++;
-            mSP.play(mEat_ID, 1, 1, 0, 0, 1);
-            removeDirtBlocksForExplodedBadApple();
+            mApple.spawn(); // Spawn a new apple
+            mScore++;       // Increase the score
+            mSP.play(mEat_ID, 1, 1, 0, 0, 1); // Play the eat sound
+            removeDirtBlocksForExplodedBadApple();  // Remove dirt blocks associated with exploded bad apple
+
+            // Eating an apple gives a random chance to spawn a random PowerUp in the array
+            if (!powerUps.isEmpty()) {
+                Random random = new Random();
+                int randomIndex = random.nextInt(powerUps.size());
+                powerUps.get(randomIndex).spawn();
+            }
 
             // Remove dirt blocks when snake eats an apple
             if(mScore > 0){
@@ -224,6 +253,18 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             mPaused = true;
             usrPause = false;
             gameOverFlag = true;
+        }
+
+        // Check for collision with Power Ups
+        for (Iterator<PowerUp> iterator = powerUps.iterator(); iterator.hasNext();) {
+            PowerUp powerUp = iterator.next();
+            if (mSnake.checkCollide(powerUp)) {
+                powerUp.setVisible(false);
+                if (powerUp.getName().equals("Score Doubler")) {
+                    mScore *= 2; // Double the score
+                }
+
+            }
         }
         if(checkSnakeDirtBlockCollision()){
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
@@ -263,6 +304,12 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
             mBadApple.draw(mCanvas, mPaint);
+
+            // Draw power-ups
+            for (PowerUp powerUp : powerUps) {
+                powerUp.draw(mCanvas, mPaint);
+            }
+
             // Draw dirt blocks
             for (Point dirtBlock : dirtBlocks) {
                 mCanvas.drawBitmap(dirtBlockBitmap, dirtBlock.x * blockSize, dirtBlock.y * blockSize, mPaint);
@@ -449,5 +496,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             dialog.show();
         });
     }
+
+    // Debug Function: Eat the apple by pressing enter.
 
 }
