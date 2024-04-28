@@ -75,6 +75,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private boolean displayedFlag;
     static ArrowButtons arrowButtons;
     List<PowerUp> powerUps;
+    private int scoreMultiplier = 1;
+    private int scoreMultiplierCounter = 0;
 
     private TitleScreen titleScreen;
     private PauseScreen pauseScreen;
@@ -152,10 +154,11 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         }
     }
 
-    // Function: Initialize Power Ups
+    // Function: Initialize Power Ups by adding them to the powerUps array
     private void initializePowerUps(Context context) {
-        PowerUp scoreDoubler = new PowerUp("Score Doubler", context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize, R.drawable.scoredoubler);
+        PowerUpScoreDoubler scoreDoubler = new PowerUpScoreDoubler(this, context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         powerUps.add(scoreDoubler);
+
         // Loop through all PowerUps and print their names
         for (PowerUp powerUp : powerUps) {
             Log.d("print-log", "PowerUp Name: " + powerUp.getName());
@@ -225,11 +228,19 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         // If the snake eats an apple..
         if (mSnake.checkCollide(mApple)) {
             mApple.spawn(); // Spawn a new apple
-            mScore++;       // Increase the score
+            mScore+= scoreMultiplier;       // Increase the score
             mSP.play(mEat_ID, 1, 1, 0, 0, 1); // Play the eat sound
             removeDirtBlocksForExplodedBadApple();  // Remove dirt blocks associated with exploded bad apple
 
-            // Eating an apple gives a random chance to spawn a random PowerUp in the array
+            // Decrease the score multiplier counter if it is greater than 0
+            if (scoreMultiplierCounter > 0)
+                scoreMultiplierCounter--;
+
+            // If the score multiplier counter is 0, reset the score multiplier to 1
+            if (scoreMultiplierCounter <= 0)
+                scoreMultiplier = 1;
+
+            // Spawn a random PowerUp in the array
             if (!powerUps.isEmpty()) {
                 Random random = new Random();
                 int randomIndex = random.nextInt(powerUps.size());
@@ -263,11 +274,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         for (Iterator<PowerUp> iterator = powerUps.iterator(); iterator.hasNext();) {
             PowerUp powerUp = iterator.next();
             if (mSnake.checkCollide(powerUp)) {
-                powerUp.setVisible(false);
-                if (powerUp.getName().equals("Score Doubler")) {
-                    mScore *= 2; // Double the score
-                }
-
+                powerUp.setVisible(false); // Hide the power up
+                powerUp.activate();        // Activate the power up
             }
         }
         if(checkSnakeDirtBlockCollision()){
@@ -502,6 +510,9 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         });
     }
 
-    // Debug Function: Eat the apple by pressing enter.
-
+    // Getters and Setters
+    public void setScoreMultiplier(int scoreMultiplier) { this.scoreMultiplier = scoreMultiplier; }
+    public int getScoreMultiplier() { return scoreMultiplier;}
+    public void setScoreMultiplierCounter(int scoreMultiplierCounter) { this.scoreMultiplierCounter = scoreMultiplierCounter; }
+    public int getScoreMultiplierCounter() { return scoreMultiplierCounter; }
 }
