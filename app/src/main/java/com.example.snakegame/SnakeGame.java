@@ -78,6 +78,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
     private TitleScreen titleScreen;
     private PauseScreen pauseScreen;
+    private SettingScreen settingScreen;
 
     // Constructor: Called when the SnakeGame class is first created
     public SnakeGame(Context context, Point size) {
@@ -106,6 +107,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         background = new Background(context);
         titleScreen = new TitleScreen(context, background.getWidth(), background.getHeight(), mPaint);
         pauseScreen = new PauseScreen(context, background.getWidth(), background.getHeight(), mPaint);
+        settingScreen = new SettingScreen(context, background.getWidth(), background.getHeight(), mPaint);
         pause = new PauseButton(context);
         controlButton = new ControlButton(context, mCustomTextPaint, 1400, 780, 300, 400);
         arrowButtons = new ArrowButtons(context);
@@ -290,40 +292,48 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         if (mSurfaceHolder.getSurface().isValid()) {
             mCanvas = mSurfaceHolder.lockCanvas();
 
+            // Always draw the background
             background.draw(mCanvas, mPaint);
-            pause.draw(mCanvas, mPaint);
-            score.setString(String.valueOf(mScore)); // Update the object with current score
-            score.draw(mCanvas, mPaint);
-            mApple.draw(mCanvas, mPaint);
-            mSnake.draw(mCanvas, mPaint);
-            if (mPaused) {
-                if(!titleScreen.isShowing()) {
-                    pauseScreen.draw(mCanvas, mPaint);
-                }
+
+          if(settingScreen.isShowing()) {
+                settingScreen.draw(mCanvas, mPaint);
             }
-            else {
-                if(controlButton.getCurrentControl() == 0) {
+            else if (titleScreen.isShowing()) {
+                titleScreen.draw(mCanvas, mPaint);
+            } else {
+                // Draw game elements only when the title screen is not showing
+                mApple.draw(mCanvas, mPaint);
+                mSnake.draw(mCanvas, mPaint);
+                mBadApple.draw(mCanvas, mPaint);
+                score.setString(String.valueOf(mScore));
+                score.draw(mCanvas, mPaint);
+                pause.draw(mCanvas, mPaint);
+
+                // Draw control buttons based on the current control setting
+                if (!mPaused && settingScreen.getCurrentControl() == 0) {
                     arrowButtons.draw(mCanvas, mPaint);
                 }
-            }
-            mBadApple.draw(mCanvas, mPaint);
 
-            // Draw power-ups
-            for (PowerUp powerUp : powerUps) {
-                powerUp.draw(mCanvas, mPaint);
-            }
+                // Draw power-ups
+                for (PowerUp powerUp : powerUps) {
+                    powerUp.draw(mCanvas, mPaint);
+                }
 
-            // Draw dirt blocks
-            for (Point dirtBlock : dirtBlocks) {
-                mCanvas.drawBitmap(dirtBlockBitmap, dirtBlock.x * blockSize, dirtBlock.y * blockSize, mPaint);
-            }
-            if(gameOverFlag){
-                gameOver.draw(mCanvas, mPaint);
-            }
-            if(titleScreen.isShowing()) {
-                titleScreen.draw(mCanvas, mPaint);
-            }
+                // Draw dirt blocks
+                for (Point dirtBlock : dirtBlocks) {
+                    mCanvas.drawBitmap(dirtBlockBitmap, dirtBlock.x * blockSize, dirtBlock.y * blockSize, mPaint);
+                }
 
+                // Handle paused state
+                if (pause.isPaused() && !titleScreen.isShowing()) {
+                    pauseScreen.draw(mCanvas, mPaint);
+                }
+
+                // Handle game over state
+                if (gameOverFlag) {
+                    gameOver.draw(mCanvas, mPaint);
+                }
+            }
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
     }
@@ -364,14 +374,33 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                     gameOverFlag = false; // Reset gameOverFlag
                     return true;
                 }
+                if (mPaused && titleScreen.isShowing() && titleScreen.startIsTouched(touchX, touchY)) {
+                    titleScreen.setShowing(false);
+                    return true;
+                }
+                if (!settingScreen.isShowing() && (pauseScreen.settingsIsTouched(touchX, touchY) || titleScreen.settingsIsTouched(touchX, touchY)) && !gameOverFlag) {
+                    settingScreen.setShowing(true);
+                    return true;
+                }
+                // Hide settings if it is showing and back button is touched
+                else if (settingScreen.isShowing() && settingScreen.backIsTouched(touchX, touchY)) {
+                    settingScreen.setShowing(false);
+                    return true;
+                }
+                else if (pause.isPaused() && pauseScreen.quitIsTouched(touchX, touchY)) {
+                    pause.setPauseStatus(false);
+                    titleScreen.setShowing(true);
+                    return true;
+                }
             }
             // If the game is paused and gameOverFlag is true, do nothing
             if (mPaused && gameOverFlag) {
                 return true;
             }
-
-            if (mPaused && titleScreen.isShowing()) {
-                titleScreen.setShowing(false);
+            if(mPaused && titleScreen.isShowing()) {
+                return true;
+            }
+            if(settingScreen.isShowing()) {
                 return true;
             }
             // If the user did not pause the game..
@@ -500,6 +529,18 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             AlertDialog dialog = builder.create();
             dialog.show();
         });
+    }
+
+    private boolean handleActiveGameInput(MotionEvent motionEvent, int mode) {
+        // Handle swipe, touch, or arrow controls depending on the mode
+        if (mode == 2) {
+            touchManager.handleSwipeEvent(motionEvent);
+        } else if (mode == 1) {
+            touchManager.handleTouchControl(motionEvent, halfwayPoint);
+        } else if (mode == 0) {
+            touchManager.handleArrowControl(motionEvent);
+        }
+        return true;
     }
 
     // Debug Function: Eat the apple by pressing enter.

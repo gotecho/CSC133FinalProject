@@ -29,11 +29,13 @@ public class PauseScreen extends GameObject implements Drawable {
     public void draw(Canvas canvas, Paint paint) {
         pauseTextTop.drawCenterAligned(canvas, paint);
         pauseTextBottom.drawCenterAligned(canvas, paint);
-        quitButton.drawFix(canvas, paint);
+        quitButton.draw(canvas, paint);
         setButton.draw(canvas, paint);
     }
 
     public boolean isShowing() { return showing; }
+
+    public boolean settingsIsTouched(int x, int y) { return setButton.isTouched(x, y); }
 
     public boolean quitIsTouched(int x, int y) { return quitButton.isTouched(x, y); }
 }

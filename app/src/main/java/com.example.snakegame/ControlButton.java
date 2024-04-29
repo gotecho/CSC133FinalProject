@@ -15,7 +15,6 @@ public class ControlButton extends GameObject implements Drawable {
     private int xSize;
     private int ySize;
     private final TextPrint buttonText;
-    private final TextPrint[] otherButtonText = new TextPrint[3];
     private final TextPrint[] controlModes = new TextPrint[3];
     private int currentControl;
     private Paint customPaint;
@@ -49,10 +48,6 @@ public class ControlButton extends GameObject implements Drawable {
     // Function: Draw the pause button
     @Override
     public void draw(Canvas canvas, Paint paint) {
-        canvas.drawBitmap(getBitmap(), xLocation,yLocation, paint);
-        controlModes[currentControl].drawCenteredOnBitmap(canvas, customPaint, getBitmap());
-    }
-    public void drawFix(Canvas canvas, Paint paint) {
         canvas.drawBitmap(getBitmap(), xLocation, yLocation, paint);
         buttonText.drawCenteredOnBitmap(canvas, customPaint, getBitmap());
     }

@@ -38,13 +38,14 @@ public class TitleScreen extends GameObject implements Drawable {
             authors[i].drawRightAligned(canvas, paint);
         }
         title.drawCenterAligned(canvas, paint);
-        leaderboardButton.drawFix(canvas, paint);
-        startButton.drawFix(canvas, paint);
+        leaderboardButton.draw(canvas, paint);
+        startButton.draw(canvas, paint);
         setButton.draw(canvas, paint);
     }
 
     public boolean isShowing() { return showing; }
     public void setShowing(boolean input) { this.showing = input; }
+    public boolean settingsIsTouched(int x, int y) { return setButton.isTouched(x, y); }
     public boolean startIsTouched(int x, int y) { return startButton.isTouched(x, y); }
 
 }
