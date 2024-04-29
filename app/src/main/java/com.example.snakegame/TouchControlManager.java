@@ -23,7 +23,7 @@ public class TouchControlManager {
             if(SnakeGame.pause.isTouched((int) event.getX(), (int) event.getY())) {
                 listener.setPause(true);
             }
-            else if (event.getX() < halfWayPoint) {
+            else if (event.getX() > halfWayPoint) {
                 listener.rotate(true);
             }
             else {
@@ -39,13 +39,15 @@ public class TouchControlManager {
                 downY = event.getY();
                 if (SnakeGame.pause.isTouched((int) downX,(int) downY)) {
                     pause = true;
-
+                    return;
                 }
+                break;
             case MotionEvent.ACTION_UP:
                 float deltaX = downX - event.getX();
                 float deltaY = downY - event.getY();
                 if(SnakeGame.pause.isTouched((int) event.getX(), (int) event.getY())) {
                     listener.setPause(true);
+                    pause = false;
                 }
                 else if(Math.abs(deltaX) >= SWIPE_THRESH || Math.abs(deltaY) >= SWIPE_THRESH) {
                     if (Math.abs(deltaX) > Math.abs(deltaY)) {

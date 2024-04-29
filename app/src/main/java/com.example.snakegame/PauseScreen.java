@@ -14,6 +14,7 @@ public class PauseScreen extends GameObject implements Drawable {
     private int halfScreenHeight;
     private boolean showing = true;
     private SettingsButton setButton;
+
     PauseScreen(Context context, int width, int height, Paint paint) {
         super(context);
         halfScreenHeight = height/2;
@@ -22,7 +23,7 @@ public class PauseScreen extends GameObject implements Drawable {
         setButton.changeLocation(width - 120);
         pauseTextTop = new TextPrint(context, "tap anywhere to resume", 80, halfScreenWidth, (halfScreenHeight*2) - 75, Color.BLACK);
         pauseTextBottom = new TextPrint(context, "paused", 300, halfScreenWidth, 300, Color.BLACK);
-        quitButton = new ControlButton(context, paint, width - 400, height - 200, 250, 400, "quit", 100);
+        quitButton = new ControlButton(context, paint, width - 400, height - 200, 125, 250, "quit", 100);
 
     }
     @Override
@@ -32,8 +33,6 @@ public class PauseScreen extends GameObject implements Drawable {
         quitButton.draw(canvas, paint);
         setButton.draw(canvas, paint);
     }
-
-    public boolean isShowing() { return showing; }
 
     public boolean settingsIsTouched(int x, int y) { return setButton.isTouched(x, y); }
 

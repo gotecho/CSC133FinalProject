@@ -28,8 +28,8 @@ public class TitleScreen extends GameObject implements Drawable {
         setButton = new SettingsButton(context);
 
         title = new TextPrint(context, "Snake Game", 200, halfScreenWidth, halfScreenHeight - 200, Color.BLACK);
-        leaderboardButton = new ControlButton(context, paint, halfScreenWidth + 300, halfScreenHeight - 50, 700, 500, "Leaderboard", 60);
-        startButton = new ControlButton(context, paint, halfScreenWidth - 900, halfScreenHeight - 50, 700, 500, "Start Game", 60);
+        leaderboardButton = new ControlButton(context, paint, halfScreenWidth + 300, halfScreenHeight - 50, 300, 600, "Leaderboard", 100);
+        startButton = new ControlButton(context, paint, halfScreenWidth - 900, halfScreenHeight - 50, 300,  600, "Start Game", 100);
     }
 
     @Override

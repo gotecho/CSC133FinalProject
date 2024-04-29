@@ -7,31 +7,46 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import org.w3c.dom.Text;
+
 public class SettingScreen extends GameObject implements Drawable {
-    private TextPrint title;
+    private TextPrint[] others = new TextPrint[2];
     private int halfScreenWidth;
     private int halfScreenHeight;
     private boolean showing = false;
     private SettingsButton setButton;
     private int currentControl;
+    private TextPrint currentControlModeText[] = new TextPrint[3];
+    private TextPrint currentMode;
+    private ControlButton[] controlModes = new ControlButton[3];
     SettingScreen(Context context, int width, int height, Paint paint) {
         super(context);
         halfScreenHeight = height/2;
         halfScreenWidth = width/2;
+        int quarterScreenWidth = width / 2;
         currentControl = 0;
         setButton = new SettingsButton(context);
         setBitmap(loadAndScaleResource(context, R.drawable.settingscreen));
-        title = new TextPrint(context, "Settings", 100, halfScreenWidth, 60, Color.BLACK);
+        others[0] = new TextPrint(context, "Settings", 100, halfScreenWidth, 70, Color.BLACK);
+        controlModes[0] = new ControlButton(context, paint, halfScreenWidth - ((2*quarterScreenWidth)/5), halfScreenHeight, 150, 400,"Arrow Keys", 70);
+        controlModes[1] = new ControlButton(context, paint, halfScreenWidth - 200, halfScreenHeight + (halfScreenHeight/2), 150, 400,"Tap Controls", 70);
+        controlModes[2] = new ControlButton(context, paint, halfScreenWidth + 45, halfScreenHeight, 150, 400,"Directional Swipe", 50);
+        currentMode = new TextPrint(context, "Current Control Setting:", 60, halfScreenWidth - (quarterScreenWidth/2) + 40, 150, Color.BLACK);
+        currentControlModeText[0] = new TextPrint(context, "Arrow Keys", 60, halfScreenWidth + (quarterScreenWidth/2) - 55, 150, Color.BLACK);
+        currentControlModeText[1] = new TextPrint(context, "Tap Controls", 60, halfScreenWidth + (quarterScreenWidth/2) - 55, 150, Color.BLACK);
+        currentControlModeText[2] = new TextPrint(context, "Directional Swipe", 60, halfScreenWidth + (quarterScreenWidth/2) - 55, 150, Color.BLACK);
     }
 
     @Override
     public void draw(Canvas canvas, Paint paint) {
 
         canvas.drawBitmap(getBitmap(), halfScreenWidth - (halfScreenWidth/2), 75, paint);
-        title.drawCenterAligned(canvas, paint);
-        //swipeControl.draw(canvas, paint);
-        //arrowControl.draw(canvas, paint);
-        //tapControl.draw(canvas, paint);
+        others[0].drawCenterAligned(canvas, paint);
+        currentMode.draw(canvas, paint);
+        currentControlModeText[currentControl].drawRightAligned(canvas, paint);
+        for(int i = 0; i < controlModes.length; i++) {
+            controlModes[i].draw(canvas, paint);
+        }
         setButton.draw(canvas, paint);
     }
 
@@ -43,6 +58,15 @@ public class SettingScreen extends GameObject implements Drawable {
     public boolean isShowing() { return showing; }
     public void setShowing(boolean input) { this.showing = input; }
     public boolean backIsTouched(int x, int y) { return setButton.isTouched(x, y); }
+    public boolean controlChange(int x, int y) {
+        for(int i = 0; i < controlModes.length; i++) {
+            if(controlModes[i].isTouched(x, y)) {
+                currentControl = i;
+                return true;
+            }
+        }
+        return false;
+    }
 
     public int getCurrentControl() { return currentControl; }
 }
