@@ -71,7 +71,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private int halfwayPoint;
     private Leaderboard leaderboard;
     private final TouchControlManager touchManager;
-    private final ControlButton controlButton;
     private boolean displayedFlag;
     static ArrowButtons arrowButtons;
     List<PowerUp> powerUps;
@@ -80,6 +79,9 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
     private TitleScreen titleScreen;
     private PauseScreen pauseScreen;
+    private SettingScreen settingScreen;
+    boolean settingTurnedOff = false;
+    boolean titleTurnedOff = false;
 
     // Constructor: Called when the SnakeGame class is first created
     public SnakeGame(Context context, Point size) {
@@ -108,8 +110,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         background = new Background(context);
         titleScreen = new TitleScreen(context, background.getWidth(), background.getHeight(), mPaint);
         pauseScreen = new PauseScreen(context, background.getWidth(), background.getHeight(), mPaint);
+        settingScreen = new SettingScreen(context, background.getWidth(), background.getHeight(), mPaint);
         pause = new PauseButton(context);
-        controlButton = new ControlButton(context, mCustomTextPaint, 1400, 780, 300, 400);
         arrowButtons = new ArrowButtons(context);
         pauseText = new TextPrint(context, "Tap To Play!", 250, 200, 700, Color.BLACK);
         score = new TextPrint(context, "0", 120, 20, 120, Color.WHITE);
@@ -298,40 +300,48 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         if (mSurfaceHolder.getSurface().isValid()) {
             mCanvas = mSurfaceHolder.lockCanvas();
 
+            // Always draw the background
             background.draw(mCanvas, mPaint);
-            pause.draw(mCanvas, mPaint);
-            score.setString(String.valueOf(mScore)); // Update the object with current score
-            score.draw(mCanvas, mPaint);
-            mApple.draw(mCanvas, mPaint);
-            mSnake.draw(mCanvas, mPaint);
-            if (mPaused) {
-                if(!titleScreen.isShowing()) {
-                    pauseScreen.draw(mCanvas, mPaint);
-                }
+
+            if(settingScreen.isShowing()) {
+                settingScreen.draw(mCanvas, mPaint);
             }
-            else {
-                if(controlButton.getCurrentControl() == 0) {
+            else if (titleScreen.isShowing()) {
+                titleScreen.draw(mCanvas, mPaint);
+            } else {
+                // Draw game elements only when the title screen is not showing
+                mApple.draw(mCanvas, mPaint);
+                mSnake.draw(mCanvas, mPaint);
+                mBadApple.draw(mCanvas, mPaint);
+                score.setString(String.valueOf(mScore));
+                score.draw(mCanvas, mPaint);
+                pause.draw(mCanvas, mPaint);
+
+                // Draw control buttons based on the current control setting
+                if (!mPaused && settingScreen.getCurrentControl() == 0) {
                     arrowButtons.draw(mCanvas, mPaint);
                 }
-            }
-            mBadApple.draw(mCanvas, mPaint);
 
-            // Draw power-ups
-            for (PowerUp powerUp : powerUps) {
-                powerUp.draw(mCanvas, mPaint);
-            }
+                // Draw power-ups
+                for (PowerUp powerUp : powerUps) {
+                    powerUp.draw(mCanvas, mPaint);
+                }
 
-            // Draw dirt blocks
-            for (Point dirtBlock : dirtBlocks) {
-                mCanvas.drawBitmap(dirtBlockBitmap, dirtBlock.x * blockSize, dirtBlock.y * blockSize, mPaint);
-            }
-            if(gameOverFlag){
-                gameOver.draw(mCanvas, mPaint);
-            }
-            if(titleScreen.isShowing()) {
-                titleScreen.draw(mCanvas, mPaint);
-            }
+                // Draw dirt blocks
+                for (Point dirtBlock : dirtBlocks) {
+                    mCanvas.drawBitmap(dirtBlockBitmap, dirtBlock.x * blockSize, dirtBlock.y * blockSize, mPaint);
+                }
 
+                // Handle paused state
+                if (pause.isPaused() && !titleScreen.isShowing()) {
+                    pauseScreen.draw(mCanvas, mPaint);
+                }
+
+                // Handle game over state
+                if (gameOverFlag) {
+                    gameOver.draw(mCanvas, mPaint);
+                }
+            }
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
     }
@@ -357,69 +367,83 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     // Function: Handle touch events
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
+        int touchX = (int) motionEvent.getX();
+        int touchY = (int) motionEvent.getY();
         // If the user touches the screen..
         // Start a new game if game is paused and gameOverFlag is true
-        int mode = controlButton.getCurrentControl();
-            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                int touchX = (int) motionEvent.getX();
-                int touchY = (int) motionEvent.getY();
-
-                if (mPaused && gameOverFlag && gameOver.isReplayButtonTouched(touchX, touchY)) {
-                    mPaused = false;
-                    usrPause = false;
-                    newGame();
-                    mNextFrameTime = System.currentTimeMillis();
-                    gameOverFlag = false; // Reset gameOverFlag
-                    return true;
-                }
-            }
-            // If the game is paused and gameOverFlag is true, do nothing
-            if (mPaused && gameOverFlag) {
+        if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+            if (mPaused && gameOverFlag && gameOver.isReplayButtonTouched(touchX, touchY)) {
+                mPaused = false;
+                usrPause = false;
+                newGame();
+                mNextFrameTime = System.currentTimeMillis();
+                gameOverFlag = false; // Reset gameOverFlag
                 return true;
             }
-
-            if (mPaused && titleScreen.isShowing()) {
+            if (!settingScreen.isShowing() && (pauseScreen.settingsIsTouched(touchX, touchY) || titleScreen.settingsIsTouched(touchX, touchY)) && !gameOverFlag) {
+                settingScreen.setShowing(true);
+                pause.setPauseStatus(false);
+                return true;
+            }
+            if (mPaused && titleScreen.isShowing() && titleScreen.startIsTouched(touchX, touchY)) {
                 titleScreen.setShowing(false);
+                pause.setPauseStatus(false);
+                titleTurnedOff = true;
                 return true;
             }
-            // If the user did not pause the game..
-            if (!pause.isPaused()) {
-                // If the game is paused, start a new game
-                if (mPaused) {
-                    mPaused = false;
-                    newGame();
-                    return touchManager.handleTouchInput(motionEvent);
-                }
-                // Swipe controls
-                if (mode == 2) {
-                    touchManager.handleSwipeEvent(motionEvent);
-                    mPaused = pause.isPaused();
-                    return true;
-                }
-                // Touch controls
-                else if (mode == 1) {
-                    touchManager.handleTouchControl(motionEvent, halfwayPoint);
-                    mPaused = pause.isPaused();
-                    return true;
-                } else if (mode == 0) {
-                    touchManager.handleArrowControl(motionEvent);
-                    mPaused = pause.isPaused();
-                    return true;
-                }
+            // Hide settings if it is showing and back button is touched
+            else if (settingScreen.isShowing() && settingScreen.backIsTouched(touchX, touchY)) {
+                settingScreen.setShowing(false);
+                pause.setPauseStatus(true);
+                settingTurnedOff = true;
+                return true;
             }
-            // If the user paused the game, resume the game
-            else {
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    if (!controlButton.isTouched((int) motionEvent.getX(), (int) motionEvent.getY())) {
-                        mPaused = false;
-                        pause.setPauseStatus(false);
-                        mNextFrameTime = System.currentTimeMillis();
-                    }
-                }
+            else if (settingScreen.isShowing() && settingScreen.controlChange(touchX, touchY)) {
+                return true;
             }
-
+            else if (pause.isPaused() && pauseScreen.quitIsTouched(touchX, touchY)) {
+                pause.setPauseStatus(false);
+                titleScreen.setShowing(true);
+                return true;
+            }
+        }
+        // If the game is paused and gameOverFlag is true, do nothing
+        if (mPaused && gameOverFlag) {
             return true;
         }
+        if(mPaused && titleScreen.isShowing()) {
+            return true;
+        }
+        if(settingScreen.isShowing()) {
+            return true;
+        }
+        // If the user did not pause the game..
+
+        if (pause.isPaused()) {
+            if (motionEvent.getAction() == MotionEvent.ACTION_UP && !settingTurnedOff) {
+                if (!SnakeGame.pause.isTouched(touchX, touchY) && !titleScreen.settingsIsTouched(touchX, touchY) && !titleTurnedOff) {
+                    pause.setPauseStatus(false);
+                    mPaused = false;
+                    mNextFrameTime = System.currentTimeMillis();
+                }
+                return true;
+            }
+            settingTurnedOff = false;
+            titleTurnedOff = false;
+        }
+        if (!pause.isPaused()) {
+            // If the game is paused, start a new game
+            if (mPaused) {
+                mPaused = false;
+                newGame();
+                return touchManager.handleTouchInput(motionEvent);
+            }
+            else {
+                return handleActiveGameInput(motionEvent, settingScreen.getCurrentControl());
+            }
+        }
+        return true;
+    }
 
     // Function: Pause the game
     public void pause() {
@@ -515,4 +539,20 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     public int getScoreMultiplier() { return scoreMultiplier;}
     public void setScoreMultiplierCounter(int scoreMultiplierCounter) { this.scoreMultiplierCounter = scoreMultiplierCounter; }
     public int getScoreMultiplierCounter() { return scoreMultiplierCounter; }
+    private boolean handleActiveGameInput(MotionEvent motionEvent, int mode) {
+        // Handle swipe, touch, or arrow controls depending on the mode
+        if (mode == 2) {
+            touchManager.handleSwipeEvent(motionEvent);
+            mPaused = pause.isPaused();
+        } else if (mode == 1) {
+            touchManager.handleTouchControl(motionEvent, halfwayPoint);
+            mPaused = pause.isPaused();
+        } else if (mode == 0) {
+            touchManager.handleArrowControl(motionEvent);
+            mPaused = pause.isPaused();
+        }
+        return true;
+    }
+
+    // Debug Function: Eat the apple by pressing enter.
 }

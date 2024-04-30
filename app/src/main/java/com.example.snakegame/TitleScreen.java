@@ -28,8 +28,8 @@ public class TitleScreen extends GameObject implements Drawable {
         setButton = new SettingsButton(context);
 
         title = new TextPrint(context, "Snake Game", 200, halfScreenWidth, halfScreenHeight - 200, Color.BLACK);
-        leaderboardButton = new ControlButton(context, paint, halfScreenWidth + 300, halfScreenHeight - 50, 700, 500, "Leaderboard", 60);
-        startButton = new ControlButton(context, paint, halfScreenWidth - 900, halfScreenHeight - 50, 700, 500, "Start Game", 60);
+        leaderboardButton = new ControlButton(context, paint, halfScreenWidth + 300, halfScreenHeight - 50, 300, 600, "Leaderboard", 100);
+        startButton = new ControlButton(context, paint, halfScreenWidth - 900, halfScreenHeight - 50, 300,  600, "Start Game", 100);
     }
 
     @Override
@@ -38,13 +38,14 @@ public class TitleScreen extends GameObject implements Drawable {
             authors[i].drawRightAligned(canvas, paint);
         }
         title.drawCenterAligned(canvas, paint);
-        leaderboardButton.drawFix(canvas, paint);
-        startButton.drawFix(canvas, paint);
+        leaderboardButton.draw(canvas, paint);
+        startButton.draw(canvas, paint);
         setButton.draw(canvas, paint);
     }
 
     public boolean isShowing() { return showing; }
     public void setShowing(boolean input) { this.showing = input; }
+    public boolean settingsIsTouched(int x, int y) { return setButton.isTouched(x, y); }
     public boolean startIsTouched(int x, int y) { return startButton.isTouched(x, y); }
 
 }
