@@ -18,8 +18,12 @@ public class GameOver implements Drawable {
 
     private Bitmap leaderboardButtonBitmap;
     private Canvas canvas;
+    private final SettingsButton settingsButton;
+    private final SettingScreen settingScreen;
 
-    public GameOver(Context context) {
+    public GameOver(Context context, int width, int height, Paint paint) {
+        settingsButton = new SettingsButton(context);
+        settingScreen = new SettingScreen(context, width, height, paint);
         mPaint = new Paint();
         mPaint.setColor(Color.WHITE);
         mPaint.setTextSize(400);
@@ -31,6 +35,8 @@ public class GameOver implements Drawable {
         mPaint.setTypeface(customFont);
 
         gameOverText = "Game Over!";
+
+        settingsButton.changeLocation(20);
 
         replayButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.playagainbutton);
         int buttonWidth = replayButtonBitmap.getWidth();
@@ -55,6 +61,8 @@ public class GameOver implements Drawable {
         canvas.drawBitmap(replayButtonBitmap, 610, 580, null);
         canvas.drawBitmap(leaderboardButtonBitmap, 540, 750, null);
 
+        settingsButton.draw(canvas, paint);
+
     }
 
     public boolean isReplayButtonTouched(int x, int y){
@@ -62,5 +70,11 @@ public class GameOver implements Drawable {
                 y >= 580 && y <= 580 + replayButtonBitmap.getHeight();
 
     }
+    public boolean isSettingsButtonTouched(int x, int y) {
+        // Check if the touch event is within the bounds of the settings button
+        return settingsButton.isTouched(x, y);
+    }
+
+
 
 }

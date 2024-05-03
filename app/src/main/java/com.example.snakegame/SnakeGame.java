@@ -82,6 +82,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private SettingScreen settingScreen;
     boolean settingTurnedOff = false;
     boolean titleTurnedOff = false;
+    private SettingsButton settingsButton;
 
     // Constructor: Called when the SnakeGame class is first created
     public SnakeGame(Context context, Point size) {
@@ -130,7 +131,9 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         dirtBlockBitmap = loadAndScaleResource(context, R.drawable.dirtblock, blockSize, blockSize);
 
         //Initialize gameOver
-        gameOver = new GameOver(context);
+        Paint paint = new Paint();
+        gameOver = new GameOver(context, size.x, size.y, paint);
+        settingsButton = new SettingsButton(context);
 
         //Initialize PowerUps
         powerUps = new ArrayList<>();
@@ -380,6 +383,14 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 gameOverFlag = false; // Reset gameOverFlag
                 return true;
             }
+            // If the game is paused and gameOverFlag is true, show the settings screen
+            if (gameOver.isSettingsButtonTouched(touchX,touchY) && mPaused && gameOverFlag){
+                settingScreen.setShowing(true);
+                mPaused = true;
+                //gameOverFlag = true;
+                return true;
+            }
+
             if (!settingScreen.isShowing() && (pauseScreen.settingsIsTouched(touchX, touchY) || titleScreen.settingsIsTouched(touchX, touchY)) && !gameOverFlag) {
                 settingScreen.setShowing(true);
                 pause.setPauseStatus(false);
@@ -399,6 +410,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 return true;
             }
             else if (settingScreen.isShowing() && settingScreen.controlChange(touchX, touchY)) {
+                mPaused = true;
+                //pause.setPauseStatus(true);
                 return true;
             }
             else if (pause.isPaused() && pauseScreen.quitIsTouched(touchX, touchY)) {
