@@ -20,6 +20,7 @@ public class GameOver implements Drawable {
     private Canvas canvas;
     private final SettingsButton settingsButton;
     private final SettingScreen settingScreen;
+    private Bitmap exitButtonBitmap;
 
     public GameOver(Context context, int width, int height, Paint paint) {
         settingsButton = new SettingsButton(context);
@@ -52,6 +53,13 @@ public class GameOver implements Drawable {
         leaderboardButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.leaderboardbutton);
         leaderboardButtonBitmap = Bitmap.createScaledBitmap(leaderboardButtonBitmap, 980, 250, false);
 
+        exitButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.exitleft);
+        int exitButtonWidth = exitButtonBitmap.getWidth();
+        int exitButtonHeight = exitButtonBitmap.getHeight();
+        exitButtonBitmap = Bitmap.createScaledBitmap(exitButtonBitmap, 200, 200, false);
+
+
+
     }
 
     public void draw(Canvas canvas, Paint paint) {
@@ -60,6 +68,7 @@ public class GameOver implements Drawable {
 
         canvas.drawBitmap(replayButtonBitmap, 610, 580, null);
         canvas.drawBitmap(leaderboardButtonBitmap, 540, 750, null);
+        canvas.drawBitmap(exitButtonBitmap,10, 800, null );
 
         settingsButton.draw(canvas, paint);
 
@@ -74,7 +83,10 @@ public class GameOver implements Drawable {
         // Check if the touch event is within the bounds of the settings button
         return settingsButton.isTouched(x, y);
     }
-
+    public boolean isExitButtonTouched(int x, int y){
+        return x >= 10 && x <= 10 + replayButtonBitmap.getWidth() &&
+                y >= 800 && y <= 800 + replayButtonBitmap.getHeight();
+    }
 
 
 }
