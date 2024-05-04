@@ -386,9 +386,25 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             // If the game is paused and gameOverFlag is true, show the settings screen
             if (gameOver.isSettingsButtonTouched(touchX,touchY) && mPaused && gameOverFlag){
                 settingScreen.setShowing(true);
+                boolean showing = settingScreen.isShowing();
+                if(showing = true && settingScreen.controlChange(touchX, touchY) ){
+                    return true;
+                }
                 mPaused = true;
-                //gameOverFlag = true;
+                pause.setPauseStatus(true);
                 return true;
+            }
+            if(mPaused && gameOverFlag && gameOver.isExitButtonTouched(touchX, touchY)){
+                mPaused = true;
+                usrPause = true;
+                titleScreen.setShowing(true);
+                gameOverFlag = false;
+                return true;
+            }
+            if(mPaused && gameOverFlag && gameOver.isLeaderBoardButtonTouched(touchX, touchY)){
+                leaderboard.isShown(true);
+                leaderboard.display();
+                showLeaderboard();
             }
 
             if (!settingScreen.isShowing() && (pauseScreen.settingsIsTouched(touchX, touchY) || titleScreen.settingsIsTouched(touchX, touchY)) && !gameOverFlag) {

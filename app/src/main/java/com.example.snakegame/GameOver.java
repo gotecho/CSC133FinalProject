@@ -54,11 +54,7 @@ public class GameOver implements Drawable {
         leaderboardButtonBitmap = Bitmap.createScaledBitmap(leaderboardButtonBitmap, 980, 250, false);
 
         exitButtonBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.exitleft);
-        int exitButtonWidth = exitButtonBitmap.getWidth();
-        int exitButtonHeight = exitButtonBitmap.getHeight();
         exitButtonBitmap = Bitmap.createScaledBitmap(exitButtonBitmap, 200, 200, false);
-
-
 
     }
 
@@ -84,8 +80,12 @@ public class GameOver implements Drawable {
         return settingsButton.isTouched(x, y);
     }
     public boolean isExitButtonTouched(int x, int y){
-        return x >= 10 && x <= 10 + replayButtonBitmap.getWidth() &&
-                y >= 800 && y <= 800 + replayButtonBitmap.getHeight();
+        return x >= 10 && x <= 10 + exitButtonBitmap.getWidth() &&
+                y >= 800 && y <= 800 + exitButtonBitmap.getHeight();
+    }
+    public boolean isLeaderBoardButtonTouched(int x, int y){
+        return x >= 540 && x <= 540 + leaderboardButtonBitmap.getWidth() &&
+                y >= 750 && y <= 750 + leaderboardButtonBitmap.getHeight();
     }
 
 
