@@ -48,4 +48,6 @@ public class TitleScreen extends GameObject implements Drawable {
     public boolean settingsIsTouched(int x, int y) { return setButton.isTouched(x, y); }
     public boolean startIsTouched(int x, int y) { return startButton.isTouched(x, y); }
 
+    public boolean leaderboardIsTouched(int x, int y) { return leaderboardButton.isTouched(x, y); }
+
 }

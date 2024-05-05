@@ -408,6 +408,11 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 titleTurnedOff = true;
                 return true;
             }
+            if(mPaused && titleScreen.isShowing() && titleScreen.leaderboardIsTouched(touchX, touchY)){
+                leaderboard.isShown(true);
+                leaderboard.display();
+                showLeaderboard();
+            }
             // Hide settings if it is showing and back button is touched
             else if (settingScreen.isShowing() && settingScreen.backIsTouched(touchX, touchY)) {
                 settingScreen.setShowing(false);
