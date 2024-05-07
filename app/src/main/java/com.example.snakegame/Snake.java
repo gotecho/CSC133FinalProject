@@ -10,15 +10,18 @@ import android.graphics.Point;
 import android.view.MotionEvent;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 public class Snake extends GameObject implements Drawable {
-    private final ArrayList<Point> segmentLocations;
+    final ArrayList<Point> segmentLocations;
     private final int mSegmentSize;
     private final Point mMoveRange;
     public enum Heading { UP, RIGHT, DOWN, LEFT }
     private Heading heading = Heading.RIGHT;
     private final Map<Heading, Bitmap> bitmapForHeading = new EnumMap<>(Heading.class);
+    private Maze maze;
+    private Snake snake;
 
 
     // Constructor: Called when the Snake class is first created
@@ -27,6 +30,14 @@ public class Snake extends GameObject implements Drawable {
         segmentLocations = new ArrayList<>();
         mSegmentSize = segmentSize;
         mMoveRange = moveRange;
+        initializeBitmaps(context, segmentSize);
+    }
+    Snake(Context context, Point moveRange, int segmentSize, Maze maze) {
+        super(context);
+        segmentLocations = new ArrayList<>();
+        mSegmentSize = segmentSize;
+        mMoveRange = moveRange;
+        this.maze = maze; // Assign the Maze reference
         initializeBitmaps(context, segmentSize);
     }
 
@@ -132,5 +143,34 @@ public class Snake extends GameObject implements Drawable {
     public Heading getRight() {
         return (Heading.values()[(heading.ordinal() + 3) % Heading.values().length]);
     }
+    public Point getHeadPosition() {
+        return new Point(segmentLocations.get(0).x, segmentLocations.get(0).y);
+    }
 
+    // Function: Restore the saved state of the snake
+    void restoreSnakeState(int width, int height) {
+        heading = Heading.RIGHT;
+
+        // Store the tail segments temporarily
+        List<Point> tailSegments = new ArrayList<>();
+        for (int i = 1; i < segmentLocations.size(); i++) {
+            tailSegments.add(segmentLocations.get(i));
+        }
+
+        segmentLocations.clear();
+        // New head position
+        segmentLocations.add(new Point(width / 2, height / 2));
+        // Re-add the tail segments
+        segmentLocations.addAll(tailSegments);
+    }
+
+    // Getter & Setter for the Snake object
+    public Snake getSnake() {
+        return snake;
+    }
+
+    // Setter for the Snake object
+    public void setSnake(Snake snake) {
+        this.snake = snake;
+    }
 }
