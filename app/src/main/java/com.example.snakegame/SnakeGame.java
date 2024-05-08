@@ -208,6 +208,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         level = 0;
         mNextFrameTime = System.currentTimeMillis(); // Reset the frame time
         dirtBlocks.clear(); //Reset the list of dirt blocks
+        scoreMultiplier = 1; // Reset the score multiplier
+        scoreMultiplierCounter = 0; // Reset the score multiplier counter
         displayedFlag = false;
     }
 
