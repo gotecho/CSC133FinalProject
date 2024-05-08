@@ -128,7 +128,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
         // Create the Snake and Apple objects
         mApple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
-        mSnake = new Snake(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        mSnake = new Snake(context, this, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         touchManager = new TouchControlManager(this);
         mBadApple = new BadApple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mBadApple.setGame(this);
@@ -653,11 +653,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         });
     }
 
-    // Getters and Setters
-    public void setScoreMultiplier(int scoreMultiplier) { this.scoreMultiplier = scoreMultiplier; }
-    public int getScoreMultiplier() { return scoreMultiplier;}
-    public void setScoreMultiplierCounter(int scoreMultiplierCounter) { this.scoreMultiplierCounter = scoreMultiplierCounter; }
-    public int getScoreMultiplierCounter() { return scoreMultiplierCounter; }
     private boolean handleActiveGameInput(MotionEvent motionEvent, int mode) {
         // Handle swipe, touch, or arrow controls depending on the mode
         if (mode == 2) {
@@ -711,5 +706,9 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     }
 
 
-    // Debug Function: Eat the apple by pressing enter.
+    // Getters and Setters
+    public void setScoreMultiplier(int scoreMultiplier) { this.scoreMultiplier = scoreMultiplier; }
+    public int getScoreMultiplier() { return scoreMultiplier;}
+    public void setScoreMultiplierCounter(int scoreMultiplierCounter) { this.scoreMultiplierCounter = scoreMultiplierCounter; }
+    public int getScoreMultiplierCounter() { return scoreMultiplierCounter; }
 }
