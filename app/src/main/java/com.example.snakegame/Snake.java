@@ -3,10 +3,16 @@ package com.example.snakegame;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.LightingColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.view.MotionEvent;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -19,11 +25,13 @@ public class Snake extends GameObject implements Drawable {
     public enum Heading { UP, RIGHT, DOWN, LEFT }
     private Heading heading = Heading.RIGHT;
     private final Map<Heading, Bitmap> bitmapForHeading = new EnumMap<>(Heading.class);
-
+    private SnakeGame snakeGame;
+    private Bitmap originalBitmap;
 
     // Constructor: Called when the Snake class is first created
-    Snake(Context context, Point moveRange, int segmentSize) {
+    Snake(Context context, SnakeGame snakeGame, Point moveRange, int segmentSize) {
         super(context);
+        this.snakeGame = snakeGame;
         segmentLocations = new ArrayList<>();
         mSegmentSize = segmentSize;
         mMoveRange = moveRange;
@@ -41,6 +49,52 @@ public class Snake extends GameObject implements Drawable {
         bitmapForHeading.put(Heading.DOWN, rotateBitmap(bitmapForHeading.get(Heading.RIGHT), 90));
 
         bitmap = Bitmap.createScaledBitmap(bitmap, size, size, false);
+        originalBitmap = bitmap;
+    }
+
+    // Function: Check if the snake is the correct color and change it if not
+    public void checkColor() {
+        if (snakeGame.getScoreMultiplier() > 1) {
+            bitmap = addGlow(bitmap, 10, Color.BLUE);
+        } else {
+            // Remove the glow effect by resetting the bitmap
+            bitmap = originalBitmap;
+        }
+    }
+    
+    // Function: Change the glow of a bitmap
+    private Bitmap changeBitmapColor(Bitmap sourceBitmap, Paint paint) {
+        Bitmap resultBitmap = Bitmap.createBitmap(sourceBitmap.getWidth(), sourceBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(resultBitmap);
+        canvas.drawBitmap(sourceBitmap, 0, 0, paint);
+    
+        return resultBitmap;
+    }
+
+    private Bitmap addGlow(Bitmap src, int glowRadius, int glowColor) {
+        // Create an empty bitmap with the same size as the source bitmap
+        Bitmap alpha = src.extractAlpha();
+        Bitmap bmp = Bitmap.createBitmap(src.getWidth() + glowRadius, src.getHeight() + glowRadius, Bitmap.Config.ARGB_8888);
+    
+        // Create a canvas to draw on the new bitmap
+        Canvas c = new Canvas(bmp);
+    
+        // Create a paint object with the specified glow color
+        Paint paint = new Paint();
+        paint.setColor(glowColor);
+    
+        // Draw the source bitmap onto the canvas, offset by half the glow radius
+        // This centers the source bitmap in the new bitmap
+        c.drawBitmap(alpha, glowRadius / 2, glowRadius / 2, paint);
+    
+        // Use a blur mask filter to create the glow effect
+        paint.setMaskFilter(new BlurMaskFilter(glowRadius, BlurMaskFilter.Blur.OUTER));
+    
+        // Draw the source bitmap onto the canvas again, using the paint object with the glow effect
+        // This creates the glow effect around the source bitmap
+        c.drawBitmap(alpha, glowRadius / 2, glowRadius / 2, paint);
+    
+        return bmp;
     }
 
     // Function: Rotate a bitmap
@@ -98,8 +152,6 @@ public class Snake extends GameObject implements Drawable {
         Point head = segmentLocations.get(0);
         return head.equals(point);
     }
-
-
 
     // Function: Draw the snake
     @Override
