@@ -196,6 +196,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         mScore = 0; // Reset the score
         mNextFrameTime = System.currentTimeMillis(); // Reset the frame time
         dirtBlocks.clear(); //Reset the list of dirt blocks
+        scoreMultiplier = 1; // Reset the score multiplier
+        scoreMultiplierCounter = 0; // Reset the score multiplier counter
         displayedFlag = false;
     }
 
@@ -293,6 +295,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             Player currentPlayer = new Player("Current Player", mScore);
             leaderboard.addPlayer(currentPlayer);
             displayedFlag = true;
+
             leaderboard.isShown(displayedFlag);
             showLeaderboard(); // Display the leaderboard
         }
