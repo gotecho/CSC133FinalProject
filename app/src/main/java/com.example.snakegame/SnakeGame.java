@@ -129,6 +129,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         // Create the Snake and Apple objects
         mApple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mSnake = new Snake(context, this, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        mSnake = new Snake(context, this, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         touchManager = new TouchControlManager(this);
         mBadApple = new BadApple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mBadApple.setGame(this);
@@ -302,11 +303,11 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 // Decrease the score multiplier counter if it is greater than 0
                 if (scoreMultiplierCounter > 0)
                     scoreMultiplierCounter--;
-
                 // If the score multiplier counter is 0, reset the score multiplier to 1
                 if (scoreMultiplierCounter <= 0)
                     scoreMultiplier = 1;
-
+            mSnake.checkColor();       // Change snake color (based on score multiplier)
+            
                 // Spawn a random PowerUp in the array
                 if (!powerUps.isEmpty()) {
                     Random random = new Random();
@@ -348,7 +349,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 if (mSnake.checkCollide(powerUp)) {
                     powerUp.setVisible(false); // Hide the power up
                     powerUp.activate();        // Activate the power up
-                }
+                    mSnake.checkColor();       // Check and change the snake color if needed
+            }
             }
             if (checkSnakeDirtBlockCollision()) {
                 mSP.play(mCrashID, 1, 1, 0, 0, 1);
@@ -360,7 +362,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 Player currentPlayer = new Player("Current Player", mScore);
                 leaderboard.addPlayer(currentPlayer);
                 displayedFlag = true;
-                leaderboard.isShown(displayedFlag);
+    
+            leaderboard.isShown(displayedFlag);
                 showLeaderboard(); // Display the leaderboard
                 level = 0;
             }
