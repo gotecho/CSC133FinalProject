@@ -7,16 +7,16 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import java.util.Random;
 public class Apple extends GameObject implements Drawable, Collidable {
-    private final Point location = new Point(); // Location of apple in grid (Not in pixels
+    private final Point location = new Point(); // Location of apple in grid (Not in pixels)
     private final Point mSpawnRange; // The range of values we can choose from to spawn an apple
     private final int mSize; // The size of the apple
 
     // Constructor: Called when the Apple class is first created
     Apple(Context context, Point spawnRange, int size){
-        super(context);   // Call the constructor of the GameObject class
+        super(context);           // Call the constructor of the GameObject class
         mSpawnRange = spawnRange; // Initialize the spawn range
-        mSize = size;        // Initialize the size of the apple
-        location.x = -10; // Initialize the location of the apple
+        mSize = size;             // Initialize the size of the apple
+        location.x = -10;         // Initialize the location of the apple
 
         // Initialize and resize the bitmap
         setBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.apple));

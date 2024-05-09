@@ -129,7 +129,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         // Create the Snake and Apple objects
         mApple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mSnake = new Snake(context, this, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
-        mSnake = new Snake(context, this, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         touchManager = new TouchControlManager(this);
         mBadApple = new BadApple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mBadApple.setGame(this);
