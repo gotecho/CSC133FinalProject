@@ -17,7 +17,7 @@ public abstract class PowerUp extends GameObject implements Drawable, Collidable
     private int score;                          // Score the player gets when they eat the power up
     private String name;                        // Name of the power up
     private boolean isVisible;                  // Flag to track if the power up is visible
-    protected SnakeGame snakeGame;                     // Reference to the game
+    protected SnakeGame snakeGame;              // Reference to the game
     public abstract void activate();            // Abstract method to activate the power up
 
     // Constructor: Called when the PowerUp class is first created

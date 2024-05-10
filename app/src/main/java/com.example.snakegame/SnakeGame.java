@@ -53,7 +53,12 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private final SurfaceHolder mSurfaceHolder; // SurfaceHolder to hold the canvas
     private final Paint mPaint; // Paint to draw with
     private final Snake mSnake; // Snake object
-    private final Apple mApple; // Apple object
+
+    // Apples
+    private final List<Apple> apples = new ArrayList<>(); // List of apples
+    private int appleCount = 1; // Number of apples
+    private int appleBuffTimer = 0;   // Timer for how long more apples will spawn, -1 when apple eaten
+
     static PauseButton pause;
     private final BadApple mBadApple;
     private final Background background;
@@ -88,10 +93,22 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     boolean mazeGameActive = false;
     private volatile int[][] mazeLayout;
     private int level = 0;
+    private Context mContext;
+
+    // Getters and Setters
+    public void setScoreMultiplier(int scoreMultiplier) { this.scoreMultiplier = scoreMultiplier; }
+    public int getScoreMultiplier() { return scoreMultiplier;}
+    public void setScoreMultiplierCounter(int scoreMultiplierCounter) { this.scoreMultiplierCounter = scoreMultiplierCounter; }
+    public int getScoreMultiplierCounter() { return scoreMultiplierCounter; }
+    public void setAppleCount(int appleCount) { this.appleCount = appleCount; }
+    public int getAppleCount() { return appleCount; }
+    public void setAppleBuffTimer(int appleBuffTimer) { this.appleBuffTimer = appleBuffTimer; }
+    public int getAppleBuffTimer() { return appleBuffTimer; }
 
     // Constructor: Called when the SnakeGame class is first created
     public SnakeGame(Context context, Point size) {
         super(context);
+        mContext = context;
         blockSize = size.x / NUM_BLOCKS_WIDE; // Size of a block
         mNumBlocksHigh = size.y / blockSize; // Number of blocks high
 
@@ -127,8 +144,9 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         halfwayPoint = background.getWidth() / 2;
 
         // Create the Snake and Apple objects
-        mApple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
-        mSnake = new Snake(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        Apple apple = new Apple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        apples.add(apple);
+        mSnake = new Snake(context, this, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         touchManager = new TouchControlManager(this);
         mBadApple = new BadApple(context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         mBadApple.setGame(this);
@@ -173,7 +191,9 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     // Function: Initialize Power Ups by adding them to the powerUps array
     private void initializePowerUps(Context context) {
         PowerUpScoreDoubler scoreDoubler = new PowerUpScoreDoubler(this, context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        PowerUpGoldenApple goldenApple = new PowerUpGoldenApple(this, context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         powerUps.add(scoreDoubler);
+        powerUps.add(goldenApple);
 
         // Loop through all PowerUps and print their names
         for (PowerUp powerUp : powerUps) {
@@ -201,13 +221,20 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     // Function: Start a new game
     public void newGame() {
         mSnake.reset(NUM_BLOCKS_WIDE, mNumBlocksHigh); // Reset the snake
-        mApple.spawn(); // Spawn the apple
         mBadApple.setGame(this);
         clearBadApple();
         mScore = 0; // Reset the score
         level = 0;
         mNextFrameTime = System.currentTimeMillis(); // Reset the frame time
         dirtBlocks.clear(); //Reset the list of dirt blocks
+        scoreMultiplier = 1; // Reset the score multiplier
+        scoreMultiplierCounter = 0; // Reset the score multiplier counter
+        appleBuffTimer = 0; // Reset the apple buff timer
+        appleCount = 1; // Reset the apple count
+        apples.clear(); // Clear the list of apples
+        Apple apple = new Apple(mContext, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        apples.add(apple);
+        apples.get(0).spawn(); // Spawn the first apple
         displayedFlag = false;
     }
 
@@ -290,41 +317,65 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             }
         } else {
             mSnake.move();
-            // If the snake eats an apple..
-            if (mSnake.checkCollide(mApple)) {
-                mApple.spawn(); // Spawn a new apple
-                mScore += scoreMultiplier;       // Increase the score
-                mSP.play(mEat_ID, 1, 1, 0, 0, 1); // Play the eat sound
-                removeDirtBlocksForExplodedBadApple();  // Remove dirt blocks associated with exploded bad apple
-
-                // Decrease the score multiplier counter if it is greater than 0
-                if (scoreMultiplierCounter > 0)
-                    scoreMultiplierCounter--;
-
-                // If the score multiplier counter is 0, reset the score multiplier to 1
-                if (scoreMultiplierCounter <= 0)
-                    scoreMultiplier = 1;
-
-                // Spawn a random PowerUp in the array
-                if (!powerUps.isEmpty()) {
-                    Random random = new Random();
-                    int randomIndex = random.nextInt(powerUps.size());
-                    powerUps.get(randomIndex).spawn();
-                }
-                // Check if the score or level has reached the threshold for Maze mini-game
-                if (level > 0 && level % 4 == 0) {
-                    System.out.println("Starting Maze Mini-game...");
-                    mazeGameActive = true;
-                }
-                level++;
-                // Remove dirt blocks when snake eats an apple
-                if (mScore > 0) {
-                    if (!dirtBlocks.isEmpty()) {
-                        dirtBlocks.clear();
+            Iterator<Apple> iterator = apples.iterator();
+            // If the snake eats any apple..
+            while (iterator.hasNext()) {
+                Apple apple = iterator.next();
+                if (mSnake.checkCollide(apple)) {
+                    /* If the Apple count (increased by buffs) is > number of apples in array
+                       and the apple buff timer is greater than 0 */
+                    if (appleCount > 1 && appleBuffTimer > 0) {
+                        int difference = appleCount - apples.size();
+                        for (int i = 0; i < difference; i++) {
+                            Apple newApple = new Apple(mContext, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+                            newApple.spawn();
+                            apples.add(newApple);
+                        }
+                    } else if (appleBuffTimer == 0 && apples.size() > 1) {
+                        iterator.remove(); // Use iterator to safely remove the apple
+                        if (apples.isEmpty()) { // If all apples are removed, add a new one
+                            Apple newApple = new Apple(mContext, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+                            newApple.spawn();
+                            apples.add(newApple);
+                        }
                     }
-                }
-                if (mScore >= 5 && !mBadApple.isSpawned()) {
-                    mBadApple.spawn();
+                    if (appleBuffTimer > 0)
+                        appleBuffTimer--;
+        
+                    apple.spawn(); // Spawn a new apple
+                    mScore += scoreMultiplier;       // Increase the score
+                    mSP.play(mEat_ID, 1, 1, 0, 0, 1); // Play the eat sound
+                    removeDirtBlocksForExplodedBadApple();  // Remove dirt blocks associated with exploded bad apple
+
+                    // Decrease the score multiplier counter if it is greater than 0
+                    if (scoreMultiplierCounter > 0)
+                        scoreMultiplierCounter--;
+                    // If the score multiplier counter is 0, reset the score multiplier to 1
+                    if (scoreMultiplierCounter <= 0)
+                        scoreMultiplier = 1;
+                mSnake.checkColor();       // Change snake color (based on score multiplier)
+
+                    // Spawn a random PowerUp in the array
+                    if (!powerUps.isEmpty()) {
+                        Random random = new Random();
+                        int randomIndex = random.nextInt(powerUps.size());
+                        powerUps.get(randomIndex).spawn();
+                    }
+                    // Check if the score or level has reached the threshold for Maze mini-game
+                    if (level > 0 && level % 4 == 0) {
+                        System.out.println("Starting Maze Mini-game...");
+                        mazeGameActive = true;
+                    }
+                    level++;
+                    // Remove dirt blocks when snake eats an apple
+                    if (mScore > 0) {
+                        if (!dirtBlocks.isEmpty()) {
+                            dirtBlocks.clear();
+                        }
+                    }
+                    if (mScore >= 5 && !mBadApple.isSpawned()) {
+                        mBadApple.spawn();
+                    }
                 }
             }
             if (mSnake.detectDeath()) {
@@ -341,12 +392,14 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             }
 
             // Check for collision with Power Ups
-            for (Iterator<PowerUp> iterator = powerUps.iterator(); iterator.hasNext(); ) {
-                PowerUp powerUp = iterator.next();
+            for (Iterator<PowerUp> powerUpIterator = powerUps.iterator(); powerUpIterator.hasNext(); ) {
+                PowerUp powerUp = powerUpIterator.next();
                 if (mSnake.checkCollide(powerUp)) {
                     powerUp.setVisible(false); // Hide the power up
                     powerUp.activate();        // Activate the power up
-                }
+                    mScore += powerUp.getScore(); // Increase the score
+                    mSnake.checkColor();       // Check and change the snake color if needed
+            }
             }
             if (checkSnakeDirtBlockCollision()) {
                 mSP.play(mCrashID, 1, 1, 0, 0, 1);
@@ -358,7 +411,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 Player currentPlayer = new Player("Current Player", mScore);
                 leaderboard.addPlayer(currentPlayer);
                 displayedFlag = true;
-                leaderboard.isShown(displayedFlag);
+    
+            leaderboard.isShown(displayedFlag);
                 showLeaderboard(); // Display the leaderboard
                 level = 0;
             }
@@ -406,7 +460,9 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 titleScreen.draw(mCanvas, mPaint);
             } else {
                 // Draw game elements only when the title screen is not showing
-                mApple.draw(mCanvas, mPaint);
+                for (Apple apple : apples) {
+                    apple.draw(mCanvas, mPaint);
+                }
                 mSnake.draw(mCanvas, mPaint);
                 mBadApple.draw(mCanvas, mPaint);
                 score.setString(String.valueOf(mScore));
@@ -650,11 +706,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         });
     }
 
-    // Getters and Setters
-    public void setScoreMultiplier(int scoreMultiplier) { this.scoreMultiplier = scoreMultiplier; }
-    public int getScoreMultiplier() { return scoreMultiplier;}
-    public void setScoreMultiplierCounter(int scoreMultiplierCounter) { this.scoreMultiplierCounter = scoreMultiplierCounter; }
-    public int getScoreMultiplierCounter() { return scoreMultiplierCounter; }
     private boolean handleActiveGameInput(MotionEvent motionEvent, int mode) {
         // Handle swipe, touch, or arrow controls depending on the mode
         if (mode == 2) {
@@ -706,7 +757,4 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             mCanvas.drawRect(left - padding, adjustedTop - padding, right + padding, adjustedBottom + padding, mPaint);
         }
     }
-
-
-    // Debug Function: Eat the apple by pressing enter.
 }
