@@ -45,7 +45,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private volatile boolean mPaused = true; // Whether the game is paused
     private volatile boolean usrPause = false; // Whether the user paused the game
     private SoundPool mSP; // SoundPool to play sounds
-    private int mEat_ID = -1, mCrashID = -1; // Sound IDs
+    private int mEat_ID = -1, mCrashID = -1, mPowerUpID = -1; // Sound IDs
     protected final int NUM_BLOCKS_WIDE = 40; // Number of blocks wide
     protected final int mNumBlocksHigh;
     protected int mScore; // Number of blocks high and the score
@@ -213,6 +213,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             AssetManager assetManager = context.getAssets();
             mEat_ID = mSP.load(assetManager.openFd("get_apple.ogg"), 0);
             mCrashID = mSP.load(assetManager.openFd("snake_death.ogg"), 0);
+            mPowerUpID = mSP.load(assetManager.openFd("get_powerup.ogg"), 0);
         } catch (IOException e) {
             // Error handling
         }
@@ -395,10 +396,11 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             for (Iterator<PowerUp> powerUpIterator = powerUps.iterator(); powerUpIterator.hasNext(); ) {
                 PowerUp powerUp = powerUpIterator.next();
                 if (mSnake.checkCollide(powerUp)) {
-                    powerUp.setVisible(false); // Hide the power up
-                    powerUp.activate();        // Activate the power up
+                    mSP.play(mPowerUpID, 1, 1, 0, 0, 1);
+                    powerUp.setVisible(false);    // Hide the power up
+                    powerUp.activate();           // Activate the power up
                     mScore += powerUp.getScore(); // Increase the score
-                    mSnake.checkColor();       // Check and change the snake color if needed
+                    mSnake.checkColor();          // Check and change the snake color if needed
             }
             }
             if (checkSnakeDirtBlockCollision()) {

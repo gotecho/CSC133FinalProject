@@ -95,9 +95,11 @@ public class Snake extends GameObject implements Drawable {
     // Function: Check if the snake is the correct color and change it if not
     public void checkColor() {
         if (snakeGame.getAppleBuffTimer() > 0) {
+            bitmap = originalBitmap;
             bitmap = addGlow(bitmap, 10, Color.YELLOW);
         }
         else if (snakeGame.getScoreMultiplier() > 1) {
+            bitmap = originalBitmap;
             bitmap = addGlow(bitmap, 10, Color.BLUE);
         } else {
             // Remove the glow effect by resetting the bitmap
