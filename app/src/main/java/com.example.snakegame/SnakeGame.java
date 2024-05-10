@@ -221,7 +221,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     // Function: Start a new game
     public void newGame() {
         mSnake.reset(NUM_BLOCKS_WIDE, mNumBlocksHigh); // Reset the snake
-        apples.get(0).spawn(); // Spawn a new apple
         mBadApple.setGame(this);
         clearBadApple();
         mScore = 0; // Reset the score
@@ -230,8 +229,12 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         dirtBlocks.clear(); //Reset the list of dirt blocks
         scoreMultiplier = 1; // Reset the score multiplier
         scoreMultiplierCounter = 0; // Reset the score multiplier counter
-        appleBuffTimer = 0;
-        appleCount = 1;
+        appleBuffTimer = 0; // Reset the apple buff timer
+        appleCount = 1; // Reset the apple count
+        apples.clear(); // Clear the list of apples
+        Apple apple = new Apple(mContext, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        apples.add(apple);
+        apples.get(0).spawn(); // Spawn the first apple
         displayedFlag = false;
     }
 
@@ -314,8 +317,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             }
         } else {
             mSnake.move();
-            // If the snake eats any apple..
             Iterator<Apple> iterator = apples.iterator();
+            // If the snake eats any apple..
             while (iterator.hasNext()) {
                 Apple apple = iterator.next();
                 if (mSnake.checkCollide(apple)) {
@@ -338,7 +341,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                     }
                     if (appleBuffTimer > 0)
                         appleBuffTimer--;
-
+        
                     apple.spawn(); // Spawn a new apple
                     mScore += scoreMultiplier;       // Increase the score
                     mSP.play(mEat_ID, 1, 1, 0, 0, 1); // Play the eat sound
