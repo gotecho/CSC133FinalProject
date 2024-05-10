@@ -28,6 +28,8 @@ import android.app.Activity;
 import android.graphics.BitmapFactory;
 import androidx.annotation.NonNull;
 import com.example.snakegame.Leaderboard;
+import android.content.res.AssetFileDescriptor;
+import android.media.MediaPlayer;
 
 // Importing multiple classes from the same package
 import com.example.snakegame.ControlButton;
@@ -41,11 +43,17 @@ import java.util.Random;
 class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     private Thread mThread = null; // Thread to run the game
     private long mNextFrameTime; // Time of the next frame
+    private Context mContext;
     private volatile boolean mPlaying = false; // Whether the game is playing
     private volatile boolean mPaused = true; // Whether the game is paused
     private volatile boolean usrPause = false; // Whether the user paused the game
     private SoundPool mSP; // SoundPool to play sounds
     private int mEat_ID = -1, mCrashID = -1, mPowerUpID = -1; // Sound IDs
+
+    // Music
+    
+    private MediaPlayer mediaPlayer;
+
     protected final int NUM_BLOCKS_WIDE = 40; // Number of blocks wide
     protected final int mNumBlocksHigh;
     protected int mScore; // Number of blocks high and the score
@@ -88,12 +96,12 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     boolean settingTurnedOff = false;
     boolean titleTurnedOff = false;
     private SettingsButton settingsButton;
+    
     private MazeGame mazeGame;
     Maze maze;
     boolean mazeGameActive = false;
     private volatile int[][] mazeLayout;
     private int level = 0;
-    private Context mContext;
 
     // Getters and Setters
     public void setScoreMultiplier(int scoreMultiplier) { this.scoreMultiplier = scoreMultiplier; }
@@ -108,13 +116,16 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     // Constructor: Called when the SnakeGame class is first created
     public SnakeGame(Context context, Point size) {
         super(context);
+
         mContext = context;
         blockSize = size.x / NUM_BLOCKS_WIDE; // Size of a block
         mNumBlocksHigh = size.y / blockSize; // Number of blocks high
 
-        // Initialize the SoundPool and load the sounds
+        // Initialize SoundPool and load the sounds, music
         initializeSoundPool(context);
+        initializeMusic(context);
         loadSounds(context);
+
 
         leaderboard = new Leaderboard(); // initialize leaderboard
 
@@ -170,6 +181,38 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         mSnake.setSnake(mSnake);
     }
 
+    // Function: Initialize music 
+    private void initializeMusic(Context context) {
+        try {
+            AssetFileDescriptor afd = context.getAssets().openFd("background_music.mp3");
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            mediaPlayer.setLooping(true); // Set looping
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    // Function: Start music
+    public void startMusic() {
+        if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
+            mediaPlayer.start();
+        }
+    }
+    // Function: Stop music
+    public void stopMusic() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
+    }
+    // Function: Stop music and rewind to start
+    public void restartMusic() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            mediaPlayer.seekTo(0); // Rewind to the start
+        }
+    }
+    
     // Function: Initialize the SoundPool
     private void initializeSoundPool(Context context) {
         // If the device is running Android 5.0 or higher..
@@ -221,6 +264,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
     // Function: Start a new game
     public void newGame() {
+        startMusic(); // Start the background music
         mSnake.reset(NUM_BLOCKS_WIDE, mNumBlocksHigh); // Reset the snake
         mBadApple.setGame(this);
         clearBadApple();
@@ -381,6 +425,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             }
             if (mSnake.detectDeath()) {
                 mSP.play(mCrashID, 1, 1, 0, 0, 1);
+                
                 mPaused = true;
                 usrPause = false;
                 gameOverFlag = true;
@@ -410,6 +455,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 gameOverFlag = true;
             }
             if (gameOverFlag) {
+                restartMusic(); // Stop the background music and rewind to start
                 Player currentPlayer = new Player("Current Player", mScore);
                 leaderboard.addPlayer(currentPlayer);
                 displayedFlag = true;
@@ -576,6 +622,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 return true;
             }
             else if (pause.isPaused() && pauseScreen.quitIsTouched(touchX, touchY)) {
+                restartMusic();
                 pause.setPauseStatus(false);
                 titleScreen.setShowing(true);
                 return true;
@@ -621,6 +668,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
     // Function: Pause the game
     public void pause() {
+        //stopMusic(); // Stop the background music (This doesn't work?)
         mPlaying = false; // Stop the game
 
         // Try to stop the thread
