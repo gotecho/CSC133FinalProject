@@ -515,7 +515,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             }
             else if (settingScreen.isShowing() && settingScreen.controlChange(touchX, touchY)) {
                 mPaused = true;
-                //pause.setPauseStatus(true);
                 return true;
             }
             else if (pause.isPaused() && pauseScreen.quitIsTouched(touchX, touchY)) {
