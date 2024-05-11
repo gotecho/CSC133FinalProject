@@ -233,8 +233,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
     // Function: Initialize Power Ups by adding them to the powerUps array
     private void initializePowerUps(Context context) {
-        PowerUpScoreDoubler scoreDoubler = new PowerUpScoreDoubler(this, context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
-        PowerUpGoldenApple goldenApple = new PowerUpGoldenApple(this, context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        PowerUp scoreDoubler = PowerUpFactory.createPowerUp("ScoreDoubler", this, context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        PowerUp goldenApple = PowerUpFactory.createPowerUp("GoldenApple", this, context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         powerUps.add(scoreDoubler);
         powerUps.add(goldenApple);
 
@@ -310,56 +310,60 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         return false;
     }
 
+    // Function: Updates the maze game
+    private void updateMazeGame() {
+        // Update logic for the mazeGame
+        startMazeMiniGame();
+
+        mNextFrameTime = System.currentTimeMillis() + 250;
+
+        mSnake.move();
+        Point snakeHeadPosition = mSnake.getHeadPosition();
+        int snakeX = snakeHeadPosition.x;
+        int snakeY = snakeHeadPosition.y;
+
+        maze.setSnakeGame(this);
+        maze.setMaze(maze);
+        maze.setMSnake(mSnake);
+        boolean wallCollision = maze.detectWallCollision(snakeX, snakeY);
+        if (wallCollision) {
+            // Set mazeGameActive to false to end the maze game
+            mazeGameActive = false;
+            mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
+            mNextFrameTime = System.currentTimeMillis() + 500; // A delay (0.5 seconds)
+            return;
+        }
+
+        // Check if the snake has collided with the border of the maze
+        if (snakeX < 0 || snakeX >= NUM_BLOCKS_WIDE || snakeY < 0 || snakeY >= mNumBlocksHigh) {
+            // Set mazeGameActive to false to end the maze game
+            mazeGameActive = false;
+            mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
+            mNextFrameTime = System.currentTimeMillis() + 500; // A delay (0.5 seconds)
+            return;
+        }
+        // Ensure maze layout is initialized before checking if snake reached exit
+        if(mazeLayout == null) {
+            maze.initializeMazeLayoutIfNeeded();
+        }
+
+        // Check if the snake has reached the exit
+        boolean reachedExit = maze.checkSnakeReachedExit(snakeX, snakeY);
+        System.out.println("Reached Exit: " + reachedExit);
+
+        if (reachedExit) {
+            // Set mazeGameActive to false to end the maze game
+            mScore += 10; // Increase score for reaching maze exit
+            mazeGameActive = false;
+            mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
+            mNextFrameTime = System.currentTimeMillis() + 500; // Delay before resuming game
+        }
+    }
+
     // Function: Update the game
     public void update() {
         if (mazeGameActive) {
-            // Update logic for the mazeGame
-            startMazeMiniGame();
-
-            mNextFrameTime = System.currentTimeMillis() + 250;
-
-            mSnake.move();
-            Point snakeHeadPosition = mSnake.getHeadPosition();
-            int snakeX = snakeHeadPosition.x;
-            int snakeY = snakeHeadPosition.y;
-
-            maze.setSnakeGame(this);
-            maze.setMaze(maze);
-            maze.setMSnake(mSnake);
-            boolean wallCollision = maze.detectWallCollision(snakeX, snakeY);
-            if (wallCollision) {
-                // Set mazeGameActive to false to end the maze game
-                mazeGameActive = false;
-                mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
-                mNextFrameTime = System.currentTimeMillis() + 500; // A delay (0.5 seconds)
-                return;
-            }
-
-            // Check if the snake has collided with the border of the maze
-            if (snakeX < 0 || snakeX >= NUM_BLOCKS_WIDE || snakeY < 0 || snakeY >= mNumBlocksHigh) {
-                // Set mazeGameActive to false to end the maze game
-                mazeGameActive = false;
-                mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
-                mNextFrameTime = System.currentTimeMillis() + 500; // A delay (0.5 seconds)
-                return;
-            }
-            // Ensure maze layout is initialized before checking if snake reached exit
-            if(mazeLayout == null) {
-                maze.initializeMazeLayoutIfNeeded();
-            }
-
-            // Check if the snake has reached the exit
-            boolean reachedExit = maze.checkSnakeReachedExit(snakeX, snakeY);
-            System.out.println("Reached Exit: " + reachedExit);
-
-            if (reachedExit) {
-                // Set mazeGameActive to false to end the maze game
-                mScore += 10; // Increase score for reaching maze exit
-                mazeGameActive = false;
-                mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
-                mNextFrameTime = System.currentTimeMillis() + 500; // Delay before resuming game
-                return;
-            }
+            updateMazeGame();
         } else {
             mSnake.move();
             Iterator<Apple> iterator = apples.iterator();

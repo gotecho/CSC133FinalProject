@@ -14,6 +14,9 @@ public class Apple extends GameObject implements Drawable, Collidable {
     // Constructor: Called when the Apple class is first created
     Apple(Context context, Point spawnRange, int size){
         super(context);           // Call the constructor of the GameObject class
+        if (spawnRange.y <= 1) {
+            throw new IllegalArgumentException("spawnRange.y must be greater than 1");
+        }
         mSpawnRange = spawnRange; // Initialize the spawn range
         mSize = size;             // Initialize the size of the apple
         location.x = -10;         // Initialize the location of the apple
@@ -27,8 +30,10 @@ public class Apple extends GameObject implements Drawable, Collidable {
     void spawn(){
         // Choose two random values and place the apple
         Random random = new Random();
-        location.x = random.nextInt(mSpawnRange.x) + 1;
-        location.y = random.nextInt(mSpawnRange.y - 1) + 1;
+        // location.x = random.nextInt(mSpawnRange.x) + 1;
+        // location.y = random.nextInt(mSpawnRange.y - 1) + 1;
+        location.x = random.nextInt(mSpawnRange.x - 2) + 2;
+        location.y = random.nextInt(mSpawnRange.y - 2) + 2;
     }
 
     // Function: Draw the apple
