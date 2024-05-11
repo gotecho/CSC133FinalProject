@@ -482,9 +482,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         }
     }
 
-
-
-    // Function: Update the game when an apple is eaten
+    // Function: Update the game when an apple is eaten. Called by update().
     private void updateAppleLogic() {
         Iterator<Apple> iterator = apples.iterator();
         // If the snake eats any apple..
@@ -512,47 +510,47 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                     appleBuffTimer--;
     
                 apple.spawn(); // Spawn a new apple
-                mScore += scoreMultiplier;       // Increase the score
-                mSP.play(mEat_ID, 1, 1, 0, 0, 1); // Play the eat sound
-                removeDirtBlocksForExplodedBadApple();  // Remove dirt blocks associated with exploded bad apple
-    
-                // Decrease the score multiplier counter if it is greater than 0
-                if (scoreMultiplierCounter > 0)
-                    scoreMultiplierCounter--;
-                // If the score multiplier counter is 0, reset the score multiplier to 1
-                if (scoreMultiplierCounter <= 0)
-                    scoreMultiplier = 1;
-                mSnake.checkColor();       // Change snake color (based on score multiplier)
-    
-                // Spawn a random PowerUp in the array
-                if (!powerUps.isEmpty()) {
-                    Random random = new Random();
-                    int randomIndex = random.nextInt(powerUps.size());
-                    powerUps.get(randomIndex).spawn();
-                }
-                // Check if the score or level has reached the threshold for Maze mini-game
-                if (level > 0 && level % 4 == 0) {
-                    System.out.println("Starting Maze Mini-game...");
-                    mazeGameActive = true;
-                }
-                level++;
-                // Remove dirt blocks when snake eats an apple
-                if (mScore > 0) {
-                    if (!dirtBlocks.isEmpty()) {
-                        dirtBlocks.clear();
-                    }
-                }
-                if (mScore >= 5 && !mBadApple.isSpawned()) {
-                    mBadApple.spawn();
-                }
+                updateOnAppleCollision(); // Update the game when snake eats an apple
             }
         }
     }
-
-
-
-
-
+    
+    // Function: Update game when snake eats an apple. Called by update() -> updateAppleLogic()
+    private void updateOnAppleCollision() {
+        mScore += scoreMultiplier;       // Increase the score
+        mSP.play(mEat_ID, 1, 1, 0, 0, 1); // Play the eat sound
+        removeDirtBlocksForExplodedBadApple();  // Remove dirt blocks associated with exploded bad apple
+    
+        // Decrease the score multiplier counter if it is greater than 0
+        if (scoreMultiplierCounter > 0)
+            scoreMultiplierCounter--;
+        // If the score multiplier counter is 0, reset the score multiplier to 1
+        if (scoreMultiplierCounter <= 0)
+            scoreMultiplier = 1;
+        mSnake.checkColor();       // Change snake color (based on score multiplier)
+    
+        // Spawn a random PowerUp in the array
+        if (!powerUps.isEmpty()) {
+            Random random = new Random();
+            int randomIndex = random.nextInt(powerUps.size());
+            powerUps.get(randomIndex).spawn();
+        }
+        // Check if the score or level has reached the threshold for Maze mini-game
+        if (level > 0 && level % 4 == 0) {
+            System.out.println("Starting Maze Mini-game...");
+            mazeGameActive = true;
+        }
+        level++;
+        // Remove dirt blocks when snake eats an apple
+        if (mScore > 0) {
+            if (!dirtBlocks.isEmpty()) {
+                dirtBlocks.clear();
+            }
+        }
+        if (mScore >= 5 && !mBadApple.isSpawned()) {
+            mBadApple.spawn();
+        }
+    }
 
     @Override
     public void onDirectionChanged(Snake.Heading direction) {
