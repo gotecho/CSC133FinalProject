@@ -12,6 +12,6 @@ public class PowerUpGoldenApple extends PowerUp {
     @Override
     public void activate() {
         snakeGame.setAppleCount(5);
-        snakeGame.setAppleBuffTimer(5);
+        snakeGame.setAppleBuffTimer(3);
     }
 }

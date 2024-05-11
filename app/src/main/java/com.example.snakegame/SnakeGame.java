@@ -233,8 +233,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
     // Function: Initialize Power Ups by adding them to the powerUps array
     private void initializePowerUps(Context context) {
-        PowerUpScoreDoubler scoreDoubler = new PowerUpScoreDoubler(this, context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
-        PowerUpGoldenApple goldenApple = new PowerUpGoldenApple(this, context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        PowerUp scoreDoubler = PowerUpFactory.createPowerUp("ScoreDoubler", this, context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+        PowerUp goldenApple = PowerUpFactory.createPowerUp("GoldenApple", this, context, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
         powerUps.add(scoreDoubler);
         powerUps.add(goldenApple);
 
@@ -310,127 +310,68 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         return false;
     }
 
+    // Function: Updates the maze game
+    private void updateMazeGame() {
+        // Update logic for the mazeGame
+        startMazeMiniGame();
+
+        mNextFrameTime = System.currentTimeMillis() + 250;
+
+        mSnake.move();
+        Point snakeHeadPosition = mSnake.getHeadPosition();
+        int snakeX = snakeHeadPosition.x;
+        int snakeY = snakeHeadPosition.y;
+
+        maze.setSnakeGame(this);
+        maze.setMaze(maze);
+        maze.setMSnake(mSnake);
+        boolean wallCollision = maze.detectWallCollision(snakeX, snakeY);
+        if (wallCollision) {
+            // Set mazeGameActive to false to end the maze game
+            mazeGameActive = false;
+            mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
+            mNextFrameTime = System.currentTimeMillis() + 500; // A delay (0.5 seconds)
+            return;
+        }
+
+        // Check if the snake has collided with the border of the maze
+        if (snakeX < 0 || snakeX >= NUM_BLOCKS_WIDE || snakeY < 0 || snakeY >= mNumBlocksHigh) {
+            // Set mazeGameActive to false to end the maze game
+            mazeGameActive = false;
+            mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
+            mNextFrameTime = System.currentTimeMillis() + 500; // A delay (0.5 seconds)
+            return;
+        }
+        // Ensure maze layout is initialized before checking if snake reached exit
+        if(mazeLayout == null) {
+            maze.initializeMazeLayoutIfNeeded();
+        }
+
+        // Check if the snake has reached the exit
+        boolean reachedExit = maze.checkSnakeReachedExit(snakeX, snakeY);
+        System.out.println("Reached Exit: " + reachedExit);
+
+        if (reachedExit) {
+            // Set mazeGameActive to false to end the maze game
+            mScore += 10; // Increase score for reaching maze exit
+            mazeGameActive = false;
+            mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
+            mNextFrameTime = System.currentTimeMillis() + 500; // Delay before resuming game
+        }
+    }
+
     // Function: Update the game
     public void update() {
         if (mazeGameActive) {
-            // Update logic for the mazeGame
-            startMazeMiniGame();
-
-            mNextFrameTime = System.currentTimeMillis() + 250;
-
-            mSnake.move();
-            Point snakeHeadPosition = mSnake.getHeadPosition();
-            int snakeX = snakeHeadPosition.x;
-            int snakeY = snakeHeadPosition.y;
-
-            maze.setSnakeGame(this);
-            maze.setMaze(maze);
-            maze.setMSnake(mSnake);
-            boolean wallCollision = maze.detectWallCollision(snakeX, snakeY);
-            if (wallCollision) {
-                // Set mazeGameActive to false to end the maze game
-                mazeGameActive = false;
-                mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
-                mNextFrameTime = System.currentTimeMillis() + 500; // A delay (0.5 seconds)
-                return;
-            }
-
-            // Check if the snake has collided with the border of the maze
-            if (snakeX < 0 || snakeX >= NUM_BLOCKS_WIDE || snakeY < 0 || snakeY >= mNumBlocksHigh) {
-                // Set mazeGameActive to false to end the maze game
-                mazeGameActive = false;
-                mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
-                mNextFrameTime = System.currentTimeMillis() + 500; // A delay (0.5 seconds)
-                return;
-            }
-            // Ensure maze layout is initialized before checking if snake reached exit
-            if(mazeLayout == null) {
-                maze.initializeMazeLayoutIfNeeded();
-            }
-
-            // Check if the snake has reached the exit
-            boolean reachedExit = maze.checkSnakeReachedExit(snakeX, snakeY);
-            System.out.println("Reached Exit: " + reachedExit);
-
-            if (reachedExit) {
-                // Set mazeGameActive to false to end the maze game
-                mScore += 10; // Increase score for reaching maze exit
-                mazeGameActive = false;
-                mSnake.restoreSnakeState(NUM_BLOCKS_WIDE, mNumBlocksHigh);
-                mNextFrameTime = System.currentTimeMillis() + 500; // Delay before resuming game
-                return;
-            }
+            updateMazeGame();
         } else {
             mSnake.move();
-            Iterator<Apple> iterator = apples.iterator();
-            // If the snake eats any apple..
-            while (iterator.hasNext()) {
-                Apple apple = iterator.next();
-                if (mSnake.checkCollide(apple)) {
-                    /* If the Apple count (increased by buffs) is > number of apples in array
-                       and the apple buff timer is greater than 0 */
-                    if (appleCount > 1 && appleBuffTimer > 0) {
-                        int difference = appleCount - apples.size();
-                        for (int i = 0; i < difference; i++) {
-                            Apple newApple = new Apple(mContext, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
-                            newApple.spawn();
-                            apples.add(newApple);
-                        }
-                    } else if (appleBuffTimer == 0 && apples.size() > 1) {
-                        iterator.remove(); // Use iterator to safely remove the apple
-                        if (apples.isEmpty()) { // If all apples are removed, add a new one
-                            Apple newApple = new Apple(mContext, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
-                            newApple.spawn();
-                            apples.add(newApple);
-                        }
-                    }
-                    if (appleBuffTimer > 0)
-                        appleBuffTimer--;
-        
-                    apple.spawn(); // Spawn a new apple
-                    mScore += scoreMultiplier;       // Increase the score
-                    mSP.play(mEat_ID, 1, 1, 0, 0, 1); // Play the eat sound
-                    removeDirtBlocksForExplodedBadApple();  // Remove dirt blocks associated with exploded bad apple
 
-                    // Decrease the score multiplier counter if it is greater than 0
-                    if (scoreMultiplierCounter > 0)
-                        scoreMultiplierCounter--;
-                    // If the score multiplier counter is 0, reset the score multiplier to 1
-                    if (scoreMultiplierCounter <= 0)
-                        scoreMultiplier = 1;
-                mSnake.checkColor();       // Change snake color (based on score multiplier)
+            // Update when snake eats any apple
+            updateAppleLogic();
 
-                    // Spawn a random PowerUp in the array
-                    if (!powerUps.isEmpty()) {
-                        Random random = new Random();
-                        int randomIndex = random.nextInt(powerUps.size());
-                        powerUps.get(randomIndex).spawn();
-                    }
-                    // Check if the score or level has reached the threshold for Maze mini-game
-                    if (level > 0 && level % 4 == 0) {
-                        System.out.println("Starting Maze Mini-game...");
-                        mazeGameActive = true;
-                    }
-                    level++;
-                    // Remove dirt blocks when snake eats an apple
-                    if (mScore > 0) {
-                        if (!dirtBlocks.isEmpty()) {
-                            dirtBlocks.clear();
-                        }
-                    }
-                    if (mScore >= 5 && !mBadApple.isSpawned()) {
-                        mBadApple.spawn();
-                    }
-                }
-            }
-            if (mSnake.detectDeath()) {
-                mSP.play(mCrashID, 1, 1, 0, 0, 1);
-                
-                mPaused = true;
-                usrPause = false;
-                gameOverFlag = true;
-            }
-            if (mSnake.checkCollide(mBadApple)) {
+            // Check for game over conditions
+            if (mSnake.detectDeath() || mSnake.checkCollide(mBadApple) || checkSnakeDirtBlockCollision()) {
                 mSP.play(mCrashID, 1, 1, 0, 0, 1);
                 mPaused = true;
                 usrPause = false;
@@ -446,21 +387,16 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                     powerUp.activate();           // Activate the power up
                     mScore += powerUp.getScore(); // Increase the score
                     mSnake.checkColor();          // Check and change the snake color if needed
+                }
             }
-            }
-            if (checkSnakeDirtBlockCollision()) {
-                mSP.play(mCrashID, 1, 1, 0, 0, 1);
-                mPaused = true;
-                usrPause = false;
-                gameOverFlag = true;
-            }
+
+            // Check for game over
             if (gameOverFlag) {
                 restartMusic(); // Stop the background music and rewind to start
                 Player currentPlayer = new Player("Current Player", mScore);
                 leaderboard.addPlayer(currentPlayer);
                 displayedFlag = true;
-    
-            leaderboard.isShown(displayedFlag);
+                leaderboard.isShown(displayedFlag);
                 showLeaderboard(); // Display the leaderboard
                 level = 0;
             }
@@ -545,6 +481,78 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
     }
+
+
+
+    // Function: Update the game when an apple is eaten
+    private void updateAppleLogic() {
+        Iterator<Apple> iterator = apples.iterator();
+        // If the snake eats any apple..
+        while (iterator.hasNext()) {
+            Apple apple = iterator.next();
+            if (mSnake.checkCollide(apple)) {
+                /* If the Apple count (increased by buffs) is > number of apples in array
+                   and the apple buff timer is greater than 0 */
+                if (appleCount > 1 && appleBuffTimer > 0) {
+                    int difference = appleCount - apples.size();
+                    for (int i = 0; i < difference; i++) {
+                        Apple newApple = new Apple(mContext, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+                        newApple.spawn();
+                        apples.add(newApple);
+                    }
+                } else if (appleBuffTimer == 0 && apples.size() > 1) {
+                    iterator.remove(); // Use iterator to safely remove the apple
+                    if (apples.isEmpty()) { // If all apples are removed, add a new one
+                        Apple newApple = new Apple(mContext, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
+                        newApple.spawn();
+                        apples.add(newApple);
+                    }
+                }
+                if (appleBuffTimer > 0)
+                    appleBuffTimer--;
+    
+                apple.spawn(); // Spawn a new apple
+                mScore += scoreMultiplier;       // Increase the score
+                mSP.play(mEat_ID, 1, 1, 0, 0, 1); // Play the eat sound
+                removeDirtBlocksForExplodedBadApple();  // Remove dirt blocks associated with exploded bad apple
+    
+                // Decrease the score multiplier counter if it is greater than 0
+                if (scoreMultiplierCounter > 0)
+                    scoreMultiplierCounter--;
+                // If the score multiplier counter is 0, reset the score multiplier to 1
+                if (scoreMultiplierCounter <= 0)
+                    scoreMultiplier = 1;
+                mSnake.checkColor();       // Change snake color (based on score multiplier)
+    
+                // Spawn a random PowerUp in the array
+                if (!powerUps.isEmpty()) {
+                    Random random = new Random();
+                    int randomIndex = random.nextInt(powerUps.size());
+                    powerUps.get(randomIndex).spawn();
+                }
+                // Check if the score or level has reached the threshold for Maze mini-game
+                if (level > 0 && level % 4 == 0) {
+                    System.out.println("Starting Maze Mini-game...");
+                    mazeGameActive = true;
+                }
+                level++;
+                // Remove dirt blocks when snake eats an apple
+                if (mScore > 0) {
+                    if (!dirtBlocks.isEmpty()) {
+                        dirtBlocks.clear();
+                    }
+                }
+                if (mScore >= 5 && !mBadApple.isSpawned()) {
+                    mBadApple.spawn();
+                }
+            }
+        }
+    }
+
+
+
+
+
 
     @Override
     public void onDirectionChanged(Snake.Heading direction) {
