@@ -117,6 +117,9 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
     public SnakeGame(Context context, Point size) {
         super(context);
 
+        leaderboard = new Leaderboard();
+        leaderboard.loadFromPreferences(context);
+
         mContext = context;
         blockSize = size.x / NUM_BLOCKS_WIDE; // Size of a block
         mNumBlocksHigh = size.y / blockSize; // Number of blocks high
@@ -127,7 +130,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         loadSounds(context);
 
 
-        leaderboard = new Leaderboard(); // initialize leaderboard
 
         // Initialize custom text Paint
         mCustomTextPaint = new Paint();
@@ -395,7 +397,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 leaderboard.addPlayer(currentPlayer);
                 displayedFlag = true;
                 leaderboard.isShown(displayedFlag);
-                showLeaderboard(); // Display the leaderboard
+                leaderboard.saveToPreferences(mContext);
+                showLeaderboard();
                 level = 0;
             }
         }
