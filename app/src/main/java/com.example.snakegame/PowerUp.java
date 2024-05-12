@@ -39,12 +39,10 @@ public abstract class PowerUp extends GameObject implements Drawable, Collidable
     // Function: Spawn a PowerUp
     void spawn(){
         // Choose two random values and place the power up
-        Log.d("print-log", "PowerUp.spawn(): Spawned a " + name + " power up.");
         this.isVisible = true;
         Random random = new Random();
         location.x = random.nextInt(mSpawnRange.x) + 1;
         location.y = random.nextInt(mSpawnRange.y - 1) + 1;
-        Log.d("print-log", "PowerUp.spawn(): Location [x,y]: " + location.x + ", " + location.y);
     }
 
     // Function: Draw the power up

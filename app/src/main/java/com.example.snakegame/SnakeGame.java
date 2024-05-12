@@ -172,7 +172,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         //Initialize PowerUps
         powerUps = new ArrayList<>();
         initializePowerUps(context);
-        Log.d("print-log", "PowerUps: " + powerUps);
 
         //Initialize Maze + SnakeGame
         maze = new Maze(getContext(), blockSize);
@@ -240,7 +239,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
         // Loop through all PowerUps and print their names
         for (PowerUp powerUp : powerUps) {
-            Log.d("print-log", "PowerUp Name: " + powerUp.getName());
         }
     }
 
@@ -362,15 +360,12 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
     // Function: Update the game
     public void update() {
-        Log.d("print-log", "update(): start of function");
         if (mazeGameActive) {
-            Log.d("print-log", "update(): callign updateMazeGame()");
             updateMazeGame();
         } else {
             mSnake.move();
 
             // Update when snake eats any apple
-            Log.d("print-log", "update(): calling updateAppleLogic()");
             updateAppleLogic();
 
             // Check for game over conditions
@@ -416,7 +411,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
             // Draw the Maze mini-game if active
             if (mazeGame != null && mazeGameActive) {
-                Log.d("print-log", "draw(): drawing maze game");
                 synchronized (mazeGame) {
                     if (mazeGame.getMaze() == null) {
                         mazeGame.setMaze(new Maze(getContext(), blockSize));
@@ -449,14 +443,10 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 titleScreen.draw(mCanvas, mPaint);
             } else {
                 // Draw game elements only when the title screen is not showing
-                Log.d("print-log", "draw(): drawing game elements, starting w/ apples");
                 for (Apple apple : apples) {
-                    Log.d("print-log", "draw(): drawing apple");
                     apple.draw(mCanvas, mPaint);
                 }
-                Log.d("print-log", "draw(): drawing snake");
                 mSnake.draw(mCanvas, mPaint);
-                Log.d("print-log", "draw(): drawing bad apple");
                 mBadApple.draw(mCanvas, mPaint);
                 score.setString(String.valueOf(mScore));
                 score.draw(mCanvas, mPaint);
@@ -468,13 +458,11 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 }
 
                 // Draw power-ups
-                Log.d("print-log", "draw(): drawing power ups");
                 for (PowerUp powerUp : powerUps) {
                     powerUp.draw(mCanvas, mPaint);
                 }
 
                 // Draw dirt blocks
-                Log.d("print-log", "draw(): drawing dirt blocks");
                 for (Point dirtBlock : dirtBlocks) {
                     mCanvas.drawBitmap(dirtBlockBitmap, dirtBlock.x * blockSize, dirtBlock.y * blockSize, mPaint);
                 }
@@ -485,7 +473,6 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 }
 
                 // Handle game over state
-                Log.d("print-log", "draw(): checking if game over");
                 if (gameOverFlag) {
                     gameOver.draw(mCanvas, mPaint);
                 }
@@ -496,33 +483,23 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
     // Function: Update the game when an apple is eaten. Called by update().
     private void updateAppleLogic() {
-        Log.d("print-log", "updateAppleLogic(): start of function, making iterator");
         Iterator<Apple> iterator = apples.iterator();
         List<Apple> newApples = new ArrayList<>(); // Create a separate collection for new apples
     
         // If the snake eats any apple..
         while (iterator.hasNext()) {
-            Log.d("print-log", "updateAppleLogic(): iterating through apples");
             Apple apple = iterator.next();
             if (mSnake.checkCollide(apple)) {
-                Log.d("print-log", "updateAppleLogic(): snake collided");
                 if (appleCount > 1 && appleBuffTimer > 0) {
                     int difference = appleCount - apples.size();
-                    Log.d("print-log", "updateAppleLogic(): calculated difference");
                     for (int i = 0; i < difference; i++) {
-                        Log.d("print-log", "updateAppleLogic(): making new apple");
                         Apple newApple = new Apple(mContext, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
-                        Log.d("print-log", "updateAppleLogic(): spawning new apple: [" + i + "]");
                         newApple.spawn();
-                        Log.d("print-log", "updateAppleLogic(): adding apple to newApples: [" + i + "]");
                         newApples.add(newApple); // Add the new apple to newApples instead of apples
                     }
                 } else if (appleBuffTimer == 0 && apples.size() > 1) {
-                    Log.d("print-log", "updateAppleLogic(): removing apple");
                     iterator.remove(); // Use iterator to safely remove the apple
-                    Log.d("print-log", "updateAppleLogic(): checking if apples arr is empty");
                     if (apples.isEmpty()) {
-                        Log.d("print-log", "updateAppleLogic(): apples arr is empty, making new apple");
                         Apple newApple = new Apple(mContext, new Point(NUM_BLOCKS_WIDE, mNumBlocksHigh), blockSize);
                         newApples.add(newApple); // Add the new apple to newApples instead of apples
                     }
@@ -530,9 +507,7 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 if (appleBuffTimer > 0)
                     appleBuffTimer--;
     
-                Log.d("print-log", "updateAppleLogic(): spawning new apple");
                 apple.spawn(); // Spawn a new apple
-                Log.d("print-log", "updateAppleLogic(): updating on apple collision");
                 updateOnAppleCollision(); // Update the game when snake eats an apple
             }
         }
@@ -572,10 +547,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             }
         }
         if (mScore >= 5 && !mBadApple.isSpawned()) {
-            Log.d("print-log", "updateOnAppleCollision(): spawning bad apple");
             mBadApple.spawn();
         }
-        Log.d("print-log", "updateOnAppleCollision(): end of function");
     }
 
     @Override
