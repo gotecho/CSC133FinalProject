@@ -30,10 +30,13 @@ public class Apple extends GameObject implements Drawable, Collidable {
     void spawn(){
         // Choose two random values and place the apple
         Random random = new Random();
-        // location.x = random.nextInt(mSpawnRange.x) + 1;
-        // location.y = random.nextInt(mSpawnRange.y - 1) + 1;
-        location.x = random.nextInt(mSpawnRange.x - 2) + 2;
-        location.y = random.nextInt(mSpawnRange.y - 2) + 2;
+        do {
+            location.x = random.nextInt(mSpawnRange.x - 2) + 2;
+        } while (location.x < 2 || location.x >= mSpawnRange.x);
+        
+        do {
+            location.y = random.nextInt(mSpawnRange.y - 2) + 2;
+        } while (location.y < 2 || location.y >= mSpawnRange.y);
     }
 
     // Function: Draw the apple
