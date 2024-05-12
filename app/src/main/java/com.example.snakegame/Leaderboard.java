@@ -20,8 +20,11 @@ public class Leaderboard {
 
     // Method to get the list of players
     public List<Player> getPlayers() {
-        return new ArrayList<>(players);  // Return a copy of the list to prevent external modification
+        // Returns a copy of the list but limited to the top 5 players
+        int endIndex = Math.min(players.size(), 5);
+        return new ArrayList<>(players.subList(0, endIndex));
     }
+
 
     public void display() {
         for (Player player : players) {
