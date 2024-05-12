@@ -1,19 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:background="#000000"
     android:padding="16dp">
 
+    <!-- Leaderboard Title -->
     <TextView
         android:id="@+id/leaderboard_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Leaderboard"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:fontFamily="@font/munro"
+        android:textColor="#00FF00"
+        android:background="#000000"
+        android:padding="8dp">
+    </TextView>
 
+
+    <!-- Leaderboard List -->
     <ListView
         android:id="@+id/leaderboard_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:divider="#FF0000"
+        android:fontFamily="@font/munro"
+        android:textColor="#00FFFF"
+        android:dividerHeight="2dp">
+    </ListView>
 </LinearLayout>
