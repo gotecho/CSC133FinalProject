@@ -30,7 +30,9 @@ import androidx.annotation.NonNull;
 import com.example.snakegame.Leaderboard;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
-
+import android.widget.EditText;
+import android.content.DialogInterface;
+import android.text.InputType;
 // Importing multiple classes from the same package
 import com.example.snakegame.ControlButton;
 import com.example.snakegame.ArrowButtons;
@@ -392,15 +394,14 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
 
             // Check for game over
             if (gameOverFlag) {
-                restartMusic(); // Stop the background music and rewind to start
-                Player currentPlayer = new Player("Current Player", mScore);
-                leaderboard.addPlayer(currentPlayer);
+                onGameOver();
+                restartMusic();
                 displayedFlag = true;
                 leaderboard.isShown(displayedFlag);
                 leaderboard.saveToPreferences(mContext);
-                showLeaderboard();
                 level = 0;
             }
+
         }
     }
 
@@ -744,25 +745,30 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
         }
         return false;
     }
-    private void showLeaderboard() {
-        ((Activity) getContext()).runOnUiThread(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            View dialogView = inflater.inflate(R.layout.dialog_leaderboard, null);
-            builder.setView(dialogView);
+    public void showLeaderboard() {
+        Activity activity = getContext() instanceof Activity ? (Activity) getContext() : null;
+        if (activity != null) {
+            activity.runOnUiThread(() -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                LayoutInflater inflater = activity.getLayoutInflater();
+                View dialogView = inflater.inflate(R.layout.dialog_leaderboard, null);
+                builder.setView(dialogView);
 
-            ListView listView = dialogView.findViewById(R.id.leaderboard_list);
-            List<String> playerScores = new ArrayList<>();
-            for (Player player : leaderboard.getPlayers()) {
-                playerScores.add(player.toString());
-            }
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, playerScores);
-            listView.setAdapter(adapter);
-            builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        });
+                ListView listView = dialogView.findViewById(R.id.leaderboard_list);
+                List<String> playerScores = new ArrayList<>();
+                for (Player player : leaderboard.getPlayers()) {
+                    playerScores.add(player.toString());
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, playerScores);
+                listView.setAdapter(adapter);
+
+                builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            });
+        }
     }
+
 
     private boolean handleActiveGameInput(MotionEvent motionEvent, int mode) {
         // Handle swipe, touch, or arrow controls depending on the mode
@@ -815,4 +821,69 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             mCanvas.drawRect(left - padding, adjustedTop - padding, right + padding, adjustedBottom + padding, mPaint);
         }
     }
+    public Leaderboard getLeaderboard() {
+        return leaderboard;
+    }
+    public int getScore() {
+        return mScore;
+    }
+    public void resetGame() {
+        newGame();
+    }
+    private void promptForInitials() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Enter Initials (3 Letters Only)");
+        final EditText input = new EditText(getContext());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String initials = input.getText().toString().toUpperCase();
+            if (initials.length() != 3 || !initials.matches("[A-Z]+")) {
+                initials = "AAA";  // Default if invalid
+            }
+            updatePlayer(initials);
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            updatePlayer("AAA");  // Use default initials if user cancels
+        });
+        builder.show();
+    }
+    public void onGameOver() {
+        Activity activity = getContext() instanceof Activity ? (Activity) getContext() : null;
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (scoreQualifiesForLeaderboard(mScore)) {
+                        promptForInitials();
+                    } else {
+                        showLeaderboard();
+                    }
+                }
+            });
+        } else {
+            Log.e("SnakeGame", "Context is not an Activity");
+        }
+    }
+
+
+
+    private boolean scoreQualifiesForLeaderboard(int score) {
+        if (leaderboard.getPlayers().size() < 5) {
+            return true;
+        } else if (!leaderboard.getPlayers().isEmpty() && score > leaderboard.getPlayers().get(leaderboard.getPlayers().size() - 1).getScore()) {
+            return true;
+        }
+        return false;
+    }
+    public void updatePlayer(String initials) {
+        Player currentPlayer = new Player(initials, mScore);
+        leaderboard.addPlayer(currentPlayer);
+        leaderboard.saveToPreferences(getContext());  // Save leaderboard to preferences
+    }
+
+
+
+
 }

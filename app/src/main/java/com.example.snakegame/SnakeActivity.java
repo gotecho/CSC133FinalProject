@@ -3,6 +3,10 @@ import android.app.Activity;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
+import android.app.AlertDialog;
+import android.widget.EditText;
+import android.text.InputFilter;
+import android.text.InputType;
 public class SnakeActivity extends Activity {
     SnakeGame mSnakeGame; // Declare an instance of SnakeGame
 
@@ -38,4 +42,7 @@ public class SnakeActivity extends Activity {
         super.onPause();
         mSnakeGame.pause();
     }
+
 }
+
+
