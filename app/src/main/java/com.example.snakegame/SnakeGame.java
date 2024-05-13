@@ -759,7 +759,9 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
                 for (Player player : leaderboard.getPlayers()) {
                     playerScores.add(player.toString());
                 }
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, playerScores);
+
+                // Using the custom array adapter instead of the default ArrayAdapter
+                CustomArrayAdapter adapter = new CustomArrayAdapter(activity, android.R.layout.simple_list_item_1, playerScores);
                 listView.setAdapter(adapter);
 
                 builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
@@ -768,6 +770,8 @@ class SnakeGame extends SurfaceView implements Runnable, ControlListener {
             });
         }
     }
+
+
 
 
     private boolean handleActiveGameInput(MotionEvent motionEvent, int mode) {
