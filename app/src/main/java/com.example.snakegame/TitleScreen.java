@@ -27,7 +27,7 @@ public class TitleScreen extends GameObject implements Drawable {
         authors[4] = new TextPrint(context, "Anthony Vitro", 30, width - 10, 180, Color.BLACK);
         setButton = new SettingsButton(context);
 
-        title = new TextPrint(context, "Snake Game", 200, halfScreenWidth, halfScreenHeight - 200, Color.BLACK);
+        title = new TextPrint(context, "Hungry Hungry Caterpillar", 200, halfScreenWidth, halfScreenHeight - 200, Color.BLACK);
         leaderboardButton = new ControlButton(context, paint, halfScreenWidth + 300, halfScreenHeight - 50, 300, 600, "Leaderboard", 100);
         startButton = new ControlButton(context, paint, halfScreenWidth - 900, halfScreenHeight - 50, 300,  600, "Start Game", 100);
     }
